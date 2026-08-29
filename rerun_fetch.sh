@@ -6,5 +6,5 @@ while true; do
         break
     fi
     echo "$(date): fetch_data.py crashed, retrying in 15 minutes"
-    sleep 900
+    sleep 500
 done

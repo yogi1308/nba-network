@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 import time
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playercareerstats
@@ -26,7 +27,7 @@ with open("data/players.csv", "r+") as player_file:
         if player["id"] in done or player["id"] in skipped:
             continue
 
-        print("fetching career of", player["full_name"])
+        print(datetime.now(), ":", "fetching career of", player["full_name"])
 
         try:
             # gets the first table of career which includes the data we need
@@ -38,7 +39,7 @@ with open("data/players.csv", "r+") as player_file:
                 skipped_file.write(f"{player['id']},{player['full_name']},KeyError:resultSet\n")
                 skipped_file.flush()
                 skipped.add(str(player["id"]))
-            print(f"skipping {player['full_name']} ({player['id']}) — KeyError resultSet")
+            print(f"{datetime.now()} : skipping {player['full_name']} ({player['id']}) — KeyError resultSet")
             continue
 
         # career = playercareerstats.PlayerCareerStats(
@@ -57,7 +58,7 @@ with open("data/players.csv", "r+") as player_file:
                 teams_done.add(tuple(log.strip().split(",")))
 
         for row in career.itertuples(index=False):
-            print("fetching", player["full_name"], row.SEASON_ID, row.TEAM_ID)
+            print(datetime.now(), ":", "fetching", player["full_name"], row.SEASON_ID, row.TEAM_ID)
             if ( str(row.TEAM_ID), row.SEASON_ID ) in teams_done:
                 continue
             roster = commonteamroster.CommonTeamRoster(
