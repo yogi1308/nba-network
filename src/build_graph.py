@@ -58,13 +58,13 @@ def annotate_size_and_weight(G):
 def compute_layout(G):
     forceatlas2 = ForceAtlas2(
         outboundAttractionDistribution=True,  # dissuade hub players from dominating the center
-        edgeWeightInfluence=1.0,              # respect the "weight" edge attribute
+        edgeWeightInfluence=1.0,  # respect the "weight" edge attribute
         scalingRatio=2.0,
         gravity=1.0,
-        barnesHutOptimize=True,               # required at this scale — O(n log n) not O(n²)
-        adjustSizes=True,                     # prevent nodes overlapping, using our size attr
+        barnesHutOptimize=True,  # required at this scale — O(n log n) not O(n²)
+        adjustSizes=True,  # prevent nodes overlapping, using our size attr
         verbose=True,
-        seed=42,                              # reproducible layout across reruns
+        seed=42,  # reproducible layout across reruns
     )
     forceatlas2.forceatlas2_networkx_layout(
         G,
@@ -72,7 +72,7 @@ def compute_layout(G):
         iterations=1000,
         weight_attr="weight",
         size_attr="size",
-        store_pos_as="pos",   # writes G.nodes[n]["pos"] = (x, y) directly
+        store_pos_as="pos",  # writes G.nodes[n]["pos"] = (x, y) directly
     )
 
 
@@ -80,21 +80,18 @@ def build_graph_json(G, id_to_name):
     return {
         "nodes": [
             {
-                "id": n,
-                "name": G.nodes[n].get("name", id_to_name.get(n, "Unknown")),
-                "x": G.nodes[n]["pos"][0],
-                "y": G.nodes[n]["pos"][1],
-                "size": G.nodes[n]["size"],
+                "key": n,
+                "attributes": {
+                    "label": G.nodes[n].get("name", id_to_name.get(n, "Unknown")),
+                    "x": G.nodes[n]["pos"][0],
+                    "y": G.nodes[n]["pos"][1],
+                    "size": max(2, G.nodes[n]["size"] ** 0.5),
+                },
             }
             for n in G.nodes()
         ],
-        "links": [
-            {
-                "source": u,
-                "target": v,
-                "weight": data["weight"],
-                "seasons": [{"season": s, "team_id": t} for s, t in data["seasons"]],
-            }
+        "edges": [
+            {"source": u, "target": v, "attributes": {"weight": data["weight"]}}
             for u, v, data in G.edges(data=True)
         ],
     }
@@ -111,6 +108,10 @@ def main():
     with open("data/network.json", "w") as f:
         json.dump(graph_json, f, indent=2)
     print("saved data/network.json")
+
+    with open("site/public/data/network.json", "w") as f:
+        json.dump(graph_json, f, indent=2)
+    print("saved site/public/data/network.json")
 
     with open("data/network.pkl", "wb") as f:
         pickle.dump(G, f)
