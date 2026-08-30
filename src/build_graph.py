@@ -1,7 +1,9 @@
 import csv
+import json
 import networkx as nx
 
 G = nx.Graph()
+id_to_name = {}
 
 def check_graph():
     print(G.number_of_nodes())
@@ -30,8 +32,33 @@ with (
     for link in data_reader:
         a, b = link["player_id"], link["teammate_id"]
         entry = (link["season"], link["team_id"])
+        id_to_name[a] = link["fullname"]
+        id_to_name[b] = link["teammate_fullname"]
 
         if not G.has_edge(a, b):
             G.add_edge(a, b, seasons={entry})
         elif entry not in G[a][b]["seasons"]:
             G[a][b]["seasons"].add(entry)
+
+graph_json = {
+    "nodes": [
+        {"id": n, "name": G.nodes[n].get("name", id_to_name.get(n, "Unknown"))}
+        for n in G.nodes()
+    ],
+    "links": [
+        {
+            "source": u,
+            "target": v,
+            "seasons": [
+                {"season": s, "team_id": t}
+                for s, t in data["seasons"]
+            ],
+        }
+        for u, v, data in G.edges(data=True)
+    ],
+}
+
+with open("data/network.json", "w") as f:
+    json.dump(graph_json, f)
+
+print("saved data/network.json")
