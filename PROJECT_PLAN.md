@@ -4,7 +4,6 @@
 Build an undirected graph where **every NBA player is a node** and **two players share an edge if they were teammates on the same NBA team in the same season**. Then analyze the graph to answer: how many degrees of separation exist across NBA history?
 
 ## Scope (v1)
-- **Time range:** Modern era (2000–01 through 2025–26 seasons) — expandable to full history
 - **Players:** Only players who appeared in at least 1 regular-season game
 - **Graph:** Single undirected, unweighted graph (weight by shared seasons is a stretch goal)
 
