@@ -47,7 +47,7 @@ with open("data/skipped.log", "r") as skipped_file:
                             teammate.PLAYER_ID,
                             teammate.PLAYER,
                             row.TEAM_ID,
-                            row.SEASON_ID,
+                            season
                         ]
                     )
 
