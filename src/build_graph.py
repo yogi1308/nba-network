@@ -1,4 +1,5 @@
 import csv
+import pickle
 import json
 import networkx as nx
 
@@ -62,3 +63,7 @@ with open("data/network.json", "w") as f:
     json.dump(graph_json, f)
 
 print("saved data/network.json")
+
+
+with open("data/network.pkl", "wb") as f:   # "wb" = write binary
+    pickle.dump(G, f)
