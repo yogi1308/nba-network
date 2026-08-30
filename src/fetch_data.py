@@ -39,12 +39,8 @@ with open("data/players.csv", "r+") as player_file:
                 skipped_file.write(f"{player['id']},{player['full_name']},KeyError:resultSet\n")
                 skipped_file.flush()
                 skipped.add(str(player["id"]))
-            print(f"{datetime.now()} : skipping {player['full_name']} ({player['id']}) — KeyError resultSet")
+            print(f"{datetime.now()} : skipping {player['full_name']} ({player['id']}) — {e}")
             continue
-
-        # career = playercareerstats.PlayerCareerStats(
-        #     player_id=player["id"]
-        # ).get_data_frames()[0]
 
         # drops redundant TOT entry which tracks no. of teams player played for in a season
         career = career[career["TEAM_ABBREVIATION"] != "TOT"]
