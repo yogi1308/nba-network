@@ -59,7 +59,7 @@ def compute_layout(G):
     forceatlas2 = ForceAtlas2(
         outboundAttractionDistribution=True,  # dissuade hub players from dominating the center
         edgeWeightInfluence=1.0,  # respect the "weight" edge attribute
-        scalingRatio=2.0,
+        scalingRatio=10.0,
         gravity=1.0,
         barnesHutOptimize=True,  # required at this scale — O(n log n) not O(n²)
         adjustSizes=True,  # prevent nodes overlapping, using our size attr
@@ -69,7 +69,7 @@ def compute_layout(G):
     forceatlas2.forceatlas2_networkx_layout(
         G,
         pos=None,
-        iterations=1000,
+        iterations=8000,
         weight_attr="weight",
         size_attr="size",
         store_pos_as="pos",  # writes G.nodes[n]["pos"] = (x, y) directly
