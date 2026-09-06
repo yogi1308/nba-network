@@ -1,6 +1,9 @@
 import csv
-import pickle
 import json
+import pickle
+import math
+import random
+
 import networkx as nx
 from fa2 import ForceAtlas2
 
@@ -55,12 +58,31 @@ def annotate_size_and_weight(G):
         data["weight"] = len(data["seasons"])
 
 
+def sunflower_layout(G, x_radius, y_radius, seed):
+    rng = random.Random(seed)
+    N = G.number_of_nodes()
+    golden_angle = math.pi * (3 - math.sqrt(5))
+    nodes = list(G.nodes())
+    order = list(range(N))
+    rng.shuffle(order)
+    for rank, i in enumerate(order):
+        n = nodes[i]
+        r = math.sqrt((rank + 0.5) / N)
+        theta = rank * golden_angle
+        G.nodes[n]["pos"] = (
+            r * math.cos(theta) * x_radius,
+            r * math.sin(theta) * y_radius,
+        )
+
+
 def compute_layout(G):
+    sunflower_layout(G, x_radius=2000, y_radius=1125, seed=42)
     forceatlas2 = ForceAtlas2(
-        outboundAttractionDistribution=True,  # dissuade hub players from dominating the center
+        outboundAttractionDistribution=False,  # dissuade hub players from dominating the center
         edgeWeightInfluence=1.0,  # respect the "weight" edge attribute
-        scalingRatio=10.0,
-        gravity=1.0,
+        scalingRatio=2000.0,  # large — preserves the spread from the sunflower initial
+        gravity=1.0,  # light — just enough to add cluster structure
+        linLogMode=True,  # better attraction for hub-heavy networks
         barnesHutOptimize=True,  # required at this scale — O(n log n) not O(n²)
         adjustSizes=True,  # prevent nodes overlapping, using our size attr
         verbose=True,
@@ -69,21 +91,21 @@ def compute_layout(G):
     forceatlas2.forceatlas2_networkx_layout(
         G,
         pos=None,
-        iterations=8000,
+        iterations=500,
         weight_attr="weight",
         size_attr="size",
         store_pos_as="pos",  # writes G.nodes[n]["pos"] = (x, y) directly
     )
 
 
-def build_graph_json(G, id_to_name):
+def build_graph_json(G, id_to_name, x_stretch):
     return {
         "nodes": [
             {
                 "key": n,
                 "attributes": {
                     "label": G.nodes[n].get("name", id_to_name.get(n, "Unknown")),
-                    "x": G.nodes[n]["pos"][0],
+                    "x": G.nodes[n]["pos"][0] * x_stretch,
                     "y": G.nodes[n]["pos"][1],
                     "size": max(2, G.nodes[n]["size"] ** 0.5),
                 },
@@ -104,7 +126,7 @@ def main():
     annotate_size_and_weight(G)
     compute_layout(G)
 
-    graph_json = build_graph_json(G, id_to_name)
+    graph_json = build_graph_json(G, id_to_name, x_stretch=2.00)
     with open("data/network.json", "w") as f:
         json.dump(graph_json, f, indent=2)
     print("saved data/network.json")
