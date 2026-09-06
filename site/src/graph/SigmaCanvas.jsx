@@ -7,8 +7,9 @@ import { useStore } from "../store.js";
 export default function SigmaCanvas() {
     const containerRef = useRef(null);
     const sigmaRef = useRef(null);
+
     useEffect(() => {
-        sigmaRef.current = new Sigma(graph, containerRef.current, {
+        const sigma = new Sigma(graph, containerRef.current, {
             labelWeight: "bold",
             labelSize: 15,
             labelColor: { color: "#ffffff" },
@@ -29,7 +30,15 @@ export default function SigmaCanvas() {
                 }
             },
         });
-        return () => sigmaRef.current.kill();
+        sigmaRef.current = sigma;
+        useStore.getState().setSigma(sigma);
+        return () => {
+            sigma.kill();
+            useStore.getState().setSigma(null);
+        };
     }, []);
-    return <div ref={containerRef} style={{ width: "100vw", height: "100vh" }} />;
+
+    return (
+        <div ref={containerRef} style={{ flex: 1, minWidth: 0, height: "100vh", margin: "0 0.5rem", border: "1px solid #262a30", borderRadius: "5px" }} />
+    );
 }
