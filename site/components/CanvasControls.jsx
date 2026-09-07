@@ -8,7 +8,7 @@ export default function CanvasControls() {
     return (
         <div className="flex flex-col">
             <button
-                className="hover:bg-white cursor-pointer transition-all duration-150 ease-in rounded-[3px]"
+                className="hover:bg-white cursor-pointer transition-all duration-150 ease-in rounded-[3px] active:scale-95"
                 title="Zoom In"
                 onClick={() => {
                     handle()?.animatedZoom({ factor: 1.5, duration: 200 });
@@ -17,7 +17,7 @@ export default function CanvasControls() {
                 <PlusSVG />
             </button>
             <button
-                className="hover:bg-white cursor-pointer transition-all duration-150 ease-in rounded-[3px]"
+                className="hover:bg-white cursor-pointer transition-all duration-150 ease-in rounded-[3px] active:scale-95"
                 title="Zoom Out"
                 onClick={() => {
                     handle()?.animatedUnzoom({ factor: 1.5, duration: 200 });
@@ -26,7 +26,7 @@ export default function CanvasControls() {
                 <MinusSVG />
             </button>
             <button
-                className="hover:bg-white cursor-pointer transition-all duration-150 ease-in rounded-[3px]"
+                className="hover:bg-white cursor-pointer transition-all duration-150 ease-in rounded-[3px] active:scale-95"
                 title="Fit"
                 onClick={() => {
                     handle()?.animatedReset({ duration: 200 });

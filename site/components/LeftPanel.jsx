@@ -1,4 +1,5 @@
 import PlayerDropdown from "./PlayerDropdown";
+import ShowConnectionsButton from "./ShowConnectionsButton";
 
 export default function LeftPanel({ open }) {
     return (
@@ -7,9 +8,7 @@ export default function LeftPanel({ open }) {
         >
             <div className="mx-1.5">
                 <PlayerDropdown />
-                <button className="border w-full border-white rounded-[5px] my-4 hover:bg-white hover:text-black transition-all duration-150 ease-in cursor-pointer py-0.2">
-                    Show Connections
-                </button>
+                <ShowConnectionsButton />
             </div>
         </div>
     );
