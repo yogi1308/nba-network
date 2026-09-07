@@ -1,14 +1,17 @@
 import { useEffect, useRef } from "react";
 import Sigma from "sigma";
-import { graph, scaleSize } from "./engine.js";
+import { graph, scaleSize, visibleNodesAndEdges } from "./engine.js";
 import { drawDiscNodeHover } from "sigma/rendering";
 import { useStore } from "../store.js";
 
 export default function SigmaCanvas({ leftPanelOpen }) {
     const selectedPlayer = useStore((s) => s.selectedPlayer);
+    const depth = useStore((s) => s.depth);
+    const showEdges = useStore((s) => s.showEdges);
     const sigma = useStore((s) => s.sigma);
     const containerRef = useRef(null);
     const sigmaRef = useRef(null);
+    const setRef = useRef(null);
 
     useEffect(() => {
         const sigma = new Sigma(graph, containerRef.current, {
@@ -21,17 +24,21 @@ export default function SigmaCanvas({ leftPanelOpen }) {
                     labelColor: { color: "#000000" },
                 }),
             nodeReducer: (node, data) => {
-                const { selectedPlayer } = useStore.getState();
+                const { nodes } = setRef.current ?? { nodes: new Set() };
                 return {
                     ...data,
                     size: scaleSize(graph.degree(node)),
                     color: "#c20f2d",
-                    hidden: selectedPlayer !== null && node !== selectedPlayer,
+                    hidden: !nodes.has(node),
                 };
             },
             edgeReducer: (edge, data) => {
-                const { selectedPlayer } = useStore.getState();
-                return { ...data, color: "#000000", hidden: selectedPlayer !== null };
+                const { edges } = setRef.current ?? { edges: new Set() };
+                return {
+                    ...data,
+                    color: "#1c3f87", 
+                    hidden: !edges.has(edge)
+                };
             },
         });
         sigmaRef.current = sigma;
@@ -43,8 +50,9 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     }, []);
 
     useEffect(() => {
+        setRef.current = visibleNodesAndEdges(selectedPlayer, showEdges, depth);
         sigmaRef.current?.refresh();
-    }, [selectedPlayer, sigma]);
+    }, [depth, selectedPlayer, showEdges, sigma]);
 
     return (
         <div

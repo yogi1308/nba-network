@@ -15,4 +15,44 @@ export function scaleSize(deg, minOut = 3, maxOut = 25) {
     return minOut + t * (maxOut - minOut);
 }
 
-export {graph}
+export function visibleNodesAndEdges(selected, showEdges, depth) {
+    if (selected === null) {
+        return showEdges
+            ? { nodes: new Set(graph.nodes()), edges: new Set(graph.edges()) }
+            : { nodes: new Set(graph.nodes()), edges: new Set()};
+    }
+
+    let nodes = new Set([selected]);
+    let candidates = new Set();
+    if (showEdges) {
+        for (const e of graph.edges(selected)) {
+            candidates.add(e);
+        }
+    }
+
+    let prevNodes = [selected];
+    for (let currDepth = 0; currDepth < depth; currDepth++) {
+        let curr = []
+        for (const n of prevNodes) {
+            for (const nb of graph.neighbors(n)) {
+                if (nodes.has(nb)) continue
+                curr.push(nb);
+                nodes.add(nb);
+                if (showEdges) {
+                    for (const e of graph.edges(nb)) candidates.add(e);
+                }
+            }
+        }
+        prevNodes = curr
+    }
+    if (!showEdges) return { nodes: nodes, edges: new Set() };
+
+    let edges = new Set([]);
+    for (const e of candidates) {
+        const [s, t] = graph.extremities(e);
+        if (nodes.has(s) && nodes.has(t)) edges.add(e);
+    }
+    return { nodes: nodes, edges: edges };
+}
+
+export { graph };
