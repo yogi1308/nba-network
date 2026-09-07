@@ -19,39 +19,44 @@ export function visibleNodesAndEdges(selected, showEdges, depth) {
     if (selected === null) {
         return showEdges
             ? { nodes: new Set(graph.nodes()), edges: new Set(graph.edges()) }
-            : { nodes: new Set(graph.nodes()), edges: new Set()};
+            : { nodes: new Set(graph.nodes()), edges: new Set() };
     }
 
     let nodes = new Set([selected]);
-    let candidates = new Set();
+    let edges = new Set([]);
+    let connected = new Set([selected]);
     if (showEdges) {
         for (const e of graph.edges(selected)) {
-            candidates.add(e);
+            edges.add(e);
+            const [s, t] = graph.extremities(e);
+            connected.add(s);
+            connected.add(t);
         }
     }
 
-    let prevNodes = [selected];
+    let prevNodes = new Set([selected]);
     for (let currDepth = 0; currDepth < depth; currDepth++) {
-        let curr = []
+        let curr = new Set();
         for (const n of prevNodes) {
             for (const nb of graph.neighbors(n)) {
-                if (nodes.has(nb)) continue
-                curr.push(nb);
+                if (nodes.has(nb)) continue;
+                curr.add(nb);
                 nodes.add(nb);
-                if (showEdges) {
-                    for (const e of graph.edges(nb)) candidates.add(e);
+                if (currDepth < depth - 1 && showEdges) {
+                    let eds = graph.edges(nb)
+                    for (const e of eds) {
+                        const [s, t] = graph.extremities(e)
+                        if (s === nb && !connected.has(t)) {
+                            edges.add(e)
+                        }
+                    }
                 }
             }
         }
-        prevNodes = curr
+        prevNodes = curr;
     }
     if (!showEdges) return { nodes: nodes, edges: new Set() };
 
-    let edges = new Set([]);
-    for (const e of candidates) {
-        const [s, t] = graph.extremities(e);
-        if (nodes.has(s) && nodes.has(t)) edges.add(e);
-    }
     return { nodes: nodes, edges: edges };
 }
 
