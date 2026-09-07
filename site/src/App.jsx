@@ -5,6 +5,7 @@ import { useState } from "react";
 import SidebarSVG from "../assests/svg/SidebarSVG.jsx";
 import { useEffect } from "react";
 import { useStore } from "./store.js";
+import CanvasControls from "../components/CanvasControls.jsx";
 
 export default function App() {
     const [rPanelState, setRPanelState] = useState("open");
@@ -36,6 +37,9 @@ export default function App() {
                     </span>
                 </button>
                 <LeftPanel open={lPanelState} />
+                <div className={`backdrop-blur-xl absolute z-1 bottom-1.5 p-1 py-1.5 ${lPanelState === "open" ? "-right-12" : "-right-10"}  border border-[#262a30] rounded-[5px] `}>
+                    <CanvasControls />
+                </div>
             </div>
             <SigmaCanvas leftPanelOpen={lPanelState === "open"} />
             {/* <div className="relative"> */}
