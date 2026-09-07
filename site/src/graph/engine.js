@@ -73,4 +73,43 @@ export function visibleNodesAndEdges(selected, showEdges, depth) {
     return { nodes: nodes, edges: edges };
 }
 
+export function pathFinder(player1, player2) {
+    if (player1 === null || player2 === null)
+        return { nodes: new Set(), edges: new Set() };
+
+    let q = [player1];
+    let parentMap = { player1: null };
+    let found = false;
+    let path = []
+    while (q) {
+        if (found) break;
+        let player = q.shift();
+        for (const nb of graph.neighbors(player)) {
+            if (nb in parentMap) {
+                continue
+            }
+            parentMap[nb] = player
+            q.push(nb)
+            if (nb === player2) {
+                for (let k = player2; k !== null; k = parentMap[k]) {
+                    path.push(k)
+                    if (k === player1) break
+                }
+                found = true
+                break
+            }
+        }
+    }
+    let edges = new Set()
+    for (let index = 1; index < path.length; index++) {
+        for (const ed of graph.edges(path[index - 1])) {
+            const [s, t] = graph.extremities(ed)
+            if ((s === path[index - 1] && t === path[index]) || (s === path[index] && t === path[index-1])) {
+                edges.add(ed)
+            }
+        }
+    }
+    return {nodes: new Set(path), edges: edges}
+}
+
 export { graph };

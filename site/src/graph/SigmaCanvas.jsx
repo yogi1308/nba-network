@@ -1,11 +1,13 @@
 import { useEffect, useRef } from "react";
 import Sigma from "sigma";
-import { graph, scaleSize, visibleNodesAndEdges } from "./engine.js";
+import { graph, scaleSize, visibleNodesAndEdges, pathFinder } from "./engine.js";
 import { drawDiscNodeHover } from "sigma/rendering";
 import { useStore } from "../store.js";
 
 export default function SigmaCanvas({ leftPanelOpen }) {
     const selectedPlayer = useStore((s) => s.selectedPlayer);
+    const player1 = useStore((s) => s.player1);
+    const player2 = useStore((s) => s.player2);
     const depth = useStore((s) => s.depth);
     const showEdges = useStore((s) => s.showEdges);
     const sigma = useStore((s) => s.sigma);
@@ -53,6 +55,13 @@ export default function SigmaCanvas({ leftPanelOpen }) {
         setRef.current = visibleNodesAndEdges(selectedPlayer, showEdges, depth);
         sigmaRef.current?.refresh();
     }, [depth, selectedPlayer, showEdges, sigma]);
+
+    useEffect(() => {
+        if (player1 === null || player2 === null) return
+      setRef.current = pathFinder(player1, player2) 
+        sigmaRef.current?.refresh();
+    }, [player1, player2])
+    
 
     return (
         <div
