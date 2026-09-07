@@ -7,7 +7,7 @@ const data = await res.json();
 graph.import(data);
 
 const maxDepthMap = new Map(
-    data.nodes.map((n) => [n.key, n.attributes.maxDepth])
+    data.nodes.map((n) => [n.key, n.attributes.maxDepth]),
 );
 
 export function maxDepthOf(key) {
@@ -33,7 +33,7 @@ export function visibleNodesAndEdges(selected, showEdges, depth) {
     let nodes = new Set([selected]);
     let edges = new Set([]);
     let connected = new Set([selected]);
-    if (showEdges) {
+    if (showEdges && depth !== 0) {
         for (const e of graph.edges(selected)) {
             edges.add(e);
             const [s, t] = graph.extremities(e);
@@ -51,11 +51,16 @@ export function visibleNodesAndEdges(selected, showEdges, depth) {
                 curr.add(nb);
                 nodes.add(nb);
                 if (currDepth < depth - 1 && showEdges) {
-                    let eds = graph.edges(nb)
+                    let eds = graph.edges(nb);
                     for (const e of eds) {
-                        const [s, t] = graph.extremities(e)
-                        if (s === nb && !connected.has(t)) {
-                            edges.add(e)
+                        const [s, t] = graph.extremities(e);
+                        if (
+                            (s === nb && !connected.has(t)) ||
+                            (!connected.has(s) && t === nb)
+                        ) {
+                            edges.add(e);
+                            connected.add(s);
+                            connected.add(t);
                         }
                     }
                 }
@@ -63,7 +68,7 @@ export function visibleNodesAndEdges(selected, showEdges, depth) {
         }
         prevNodes = curr;
     }
-    if (!showEdges) return { nodes: nodes, edges: new Set() };
+    if (!showEdges || depth === 0) return { nodes: nodes, edges: new Set() };
 
     return { nodes: nodes, edges: edges };
 }
