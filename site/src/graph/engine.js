@@ -6,6 +6,14 @@ const res = await fetch("/data/network.json");
 const data = await res.json();
 graph.import(data);
 
+const maxDepthMap = new Map(
+    data.nodes.map((n) => [n.key, n.attributes.maxDepth])
+);
+
+export function maxDepthOf(key) {
+    return maxDepthMap.get(key) ?? 9;
+}
+
 const degrees = graph.nodes().map((n) => graph.degree(n));
 const minDeg = Math.min(...degrees);
 const maxDeg = Math.max(...degrees);

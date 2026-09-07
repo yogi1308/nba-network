@@ -57,6 +57,10 @@ def annotate_size_and_weight(G):
     for u, v, data in G.edges(data=True):
         data["weight"] = len(data["seasons"])
 
+def annotate_max_depth(G):
+    for n, ecc in nx.eccentricity(G).items():
+        G.nodes[n]["maxDepth"] = ecc
+
 
 def sunflower_layout(G, x_radius, y_radius, seed):
     rng = random.Random(seed)
@@ -108,6 +112,7 @@ def build_graph_json(G, id_to_name, x_stretch):
                     "x": G.nodes[n]["pos"][0] * x_stretch,
                     "y": G.nodes[n]["pos"][1],
                     "size": max(2, G.nodes[n]["size"] ** 0.5),
+                    "maxDepth": G.nodes[n]["maxDepth"],
                 },
             }
             for n in G.nodes()
@@ -124,6 +129,7 @@ def main():
     check_graph(G)
 
     annotate_size_and_weight(G)
+    annotate_max_depth(G)
     compute_layout(G)
 
     graph_json = build_graph_json(G, id_to_name, x_stretch=2.00)
