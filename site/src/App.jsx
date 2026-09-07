@@ -1,5 +1,4 @@
 import LeftPanel from "../components/LeftPanel";
-import RightPanel from "../components/RightPanel";
 import SigmaCanvas from "./graph/SigmaCanvas";
 import { useState } from "react";
 import SidebarSVG from "../assests/svg/SidebarSVG.jsx";
@@ -44,22 +43,6 @@ export default function App() {
                 </div>
             </div>
             <SigmaCanvas leftPanelOpen={lPanelState === "open"} />
-            {/* <div className="relative"> */}
-            {/*     <button */}
-            {/*         title={rPanelState === "open" ? "Close Sidebar" : "Open Sidebar"} */}
-            {/*         className={` absolute cursor-pointer ${rPanelState === "open" ? "left-1" : "-left-6 "} scale-80 rotate-180 top-0.5 bg-black hover:scale-110 transition-all ease-in `} */}
-            {/*         onClick={() => { */}
-            {/*             rPanelState === "open" */}
-            {/*                 ? setRPanelState("closed") */}
-            {/*                 : setRPanelState("open"); */}
-            {/*         }} */}
-            {/*     > */}
-            {/*         <span> */}
-            {/*             <SidebarSVG /> */}
-            {/*         </span> */}
-            {/*     </button> */}
-            {/*     <RightPanel open={rPanelState} /> */}
-            {/* </div> */}
         </div>
     );
 }
