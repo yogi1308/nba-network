@@ -66,10 +66,13 @@ export default function PlayerDropdown({ dataFor }) {
     useEffect(() => {
         if (dataFor === "selectedPlayer") {
             useStore.getState().setSelectedPlayer(selectedKey);
+            useStore.getState().setView("normal")
         } else if (dataFor === "player1") {
             useStore.getState().setPlayer1(player1);
+            useStore.getState().setView("path")
         } else if (dataFor === "player2") {
             useStore.getState().setPlayer2(player2);
+            useStore.getState().setView("path")
         }
     }, [dataFor, player1, player2, selectedKey]);
 

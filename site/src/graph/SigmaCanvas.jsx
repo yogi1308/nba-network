@@ -11,6 +11,9 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     const depth = useStore((s) => s.depth);
     const showEdges = useStore((s) => s.showEdges);
     const sigma = useStore((s) => s.sigma);
+    const view = useStore((s) => s.view);
+    const path = useStore((s) => s.path);
+    const pathIndex = useStore((s) => s.pathIndex);
     const containerRef = useRef(null);
     const sigmaRef = useRef(null);
     const setRef = useRef(null);
@@ -50,6 +53,28 @@ export default function SigmaCanvas({ leftPanelOpen }) {
             useStore.getState().setSigma(null);
         };
     }, []);
+
+    function computeView(params) {
+        if (view === "path" && player1 !== null && player2 !== null) { 
+            let { nodes, edges } = pathFinder(player1, player2);
+           if (path === "all") {
+               nodes = 
+               edges = 
+                   return {nodes: nodes, edges: edges}
+           }
+            else {
+
+            }
+        }
+        return visibleNodesAndEdges(selectedPlayer, showEdges, depth);
+
+        
+    }
+
+    useEffect(() => {
+      setRef.current = computeView()
+    }, [sigma, selectedPlayer, showEdges, depth])
+    
 
     useEffect(() => {
         setRef.current = visibleNodesAndEdges(selectedPlayer, showEdges, depth);

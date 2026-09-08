@@ -9,7 +9,7 @@ export default function ShowConnectionsButton() {
             className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in 
             hover:bg-white hover:text-black active:scale-95
             `}
-            onClick={() => setShowEdges(!showEdges)}
+            onClick={() => { setShowEdges(!showEdges); useStore.getState().setView("normal")  }}
         >
             {showEdges ? "Hide" : "Show"} Connections
         </button>

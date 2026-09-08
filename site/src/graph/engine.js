@@ -73,43 +73,94 @@ export function visibleNodesAndEdges(selected, showEdges, depth) {
     return { nodes: nodes, edges: edges };
 }
 
+function dfs(
+    distMap,
+    target,
+    current,
+    path,
+    maxDepth,
+    currDepth,
+    visited,
+    allPaths,
+) {
+    if (current === target) {
+        allPaths.push([...path]);
+        return;
+    }
+    if (currDepth > maxDepth) {
+        return;
+    }
+    let nb = graph.neighbors(current);
+    for (const n of nb) {
+        if (visited.has(n)) continue;
+        if (distMap[n] === undefined || distMap[n] !== distMap[current] - 1) continue;;
+        visited.add(n)
+        path.push(n);
+        dfs(distMap, target, n, path, maxDepth, currDepth + 1, visited, allPaths);
+        path.pop();
+        visited.delete(n);
+    }
+    return allPaths;
+}
+
+function pathFinderEdges(path) {
+    let edges = new Set();
+    for (const p of path) {
+        let e = [];
+        for (let index = 1; index < p.length; index++) {
+            for (const ed of graph.edges(p[index - 1])) {
+                const [s, t] = graph.extremities(ed);
+                if (
+                    (s === p[index - 1] && t === p[index]) ||
+                    (s === p[index] && t === p[index - 1])
+                ) {
+                    e.push(ed);
+                }
+            }
+        }
+        edges.add(e);
+    }
+    return edges;
+}
 export function pathFinder(player1, player2) {
     if (player1 === null || player2 === null)
         return { nodes: new Set(), edges: new Set() };
 
-    let q = [player1];
-    let parentMap = { player1: null };
+    let q = [[player1, 0]];
     let found = false;
-    let path = []
+    let foundDepth = 0;
+    let dist = { [ player1 ]: 0 };
     while (q) {
-        if (found) break;
         let player = q.shift();
-        for (const nb of graph.neighbors(player)) {
-            if (nb in parentMap) {
-                continue
-            }
-            parentMap[nb] = player
-            q.push(nb)
+        if (found && player[1] + 1 > foundDepth) break;
+        for (const nb of graph.neighbors(player[0])) {
+            if (nb in dist) continue;
+            q.push([nb, player[1] + 1]);
+            dist[nb] = player[1] + 1;
+
             if (nb === player2) {
-                for (let k = player2; k !== null; k = parentMap[k]) {
-                    path.push(k)
-                    if (k === player1) break
-                }
-                found = true
-                break
+                if (!found) foundDepth = player[1];
+                found = true;
+                break;
             }
         }
     }
-    let edges = new Set()
-    for (let index = 1; index < path.length; index++) {
-        for (const ed of graph.edges(path[index - 1])) {
-            const [s, t] = graph.extremities(ed)
-            if ((s === path[index - 1] && t === path[index]) || (s === path[index] && t === path[index-1])) {
-                edges.add(ed)
-            }
-        }
-    }
-    return {nodes: new Set(path), edges: edges}
+
+    let path = dfs(
+        dist,
+        player1,
+        player2,
+        [player2],
+        foundDepth,
+        0,
+        new Set([ player2 ]),
+        [],
+    );
+
+    let edges = pathFinderEdges(path);
+
+    console.log({ nodes: new Set(path), edges: edges });
+    return { nodes: new Set(path), edges: edges };
 }
 
 export { graph };

@@ -28,7 +28,7 @@ export default function LeftPanel({ open }) {
                     <ShowConnectionsButton />
                     <div>
                         <p>Depth</p>
-                        <Slider max={maxDepth} defaultLabel={"All Players"}/>
+                        <Slider max={maxDepth} defaultLabel={"All Players"} />
                     </div>
                 </div>
                 <div className="flex flex-col gap-1">
@@ -36,13 +36,48 @@ export default function LeftPanel({ open }) {
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-1">
                             <p>Player 1</p>
-                            <PlayerDropdown dataFor={"player1"} defaultLabel={"Player 1"}/>
+                            <PlayerDropdown dataFor={"player1"} defaultLabel={"Player 1"} />
                         </div>
                         <div className="flex flex-col gap-1">
                             <p>Player 2</p>
-                            <PlayerDropdown dataFor={"player2"} defaultLabel={"Player 2"}/>
+                            <PlayerDropdown dataFor={"player2"} defaultLabel={"Player 2"} />
                         </div>
                     </div>
+                    <div className="flex gap-1 mt-2">
+                        <button
+                            className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 `}
+                            onClick={() => {
+                                useStore.getState().setView("path");
+                                useStore.getState().setPath("alt");
+                                let {pathIndex, numPaths} = useStore.getState()
+                                if (pathIndex < numPaths - 1) useStore.getState().setPathIndex(pathIndex + 1)
+                                useStore.getState().setPathIndex(0)
+                            }}
+                        >
+                            Next Path
+                        </button>
+                        <button
+                            className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 `}
+                            onClick={() => {
+                                useStore.getState().setView("path");
+                                useStore.getState().setPath("alt");
+                                let {pathIndex, numPaths} = useStore.getState()
+                                if (pathIndex - 1 > 0) useStore.getState().setPathIndex(pathIndex - 1)
+                                useStore.getState().setPathIndex(numPaths - 1)
+                            }}
+                        >
+                            Previous Path
+                        </button>
+                    </div>
+                    <button
+                        className={`border mt-2 w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 `}
+                        onClick={() => {
+                            useStore.getState().setView("path");
+                            useStore.getState().setPath("all");
+                        }}
+                    >
+                        All Paths
+                    </button>
                 </div>
             </div>
         </div>
