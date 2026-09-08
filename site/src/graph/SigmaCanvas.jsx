@@ -108,6 +108,7 @@ export default function SigmaCanvas({ leftPanelOpen }) {
                 useStore.getState().setPathNodes(res.nodes);
                 return res;
             } else if (path === "minLengthPathAlt") {
+                console.log("Ran")
                 let res = getPaths(pathIndex, "pathSetCache");
                 useStore.getState().setPathNodes(res.nodes);
                 return res;
