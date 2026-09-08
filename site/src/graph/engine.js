@@ -161,11 +161,19 @@ export function pathFinder(player1, player2) {
         [],
     );
 
+    if (path.length === 0) {
+        pathCache = { nodes: [], edges: [] };
+        useStore.getState().setNumPaths(0);
+        useStore.getState().setMinPathIndex(0);
+        useStore.getState().setMinDistance(null);
+        return;
+    }
+
     let edges = pathFinderEdges(path);
 
     pathCache = { nodes: path, edges: edges };
     useStore.getState().setNumPaths(path.length);
-    useStore.getState().setPathIndex(0);
+    useStore.getState().setMinPathIndex(0);
     useStore.getState().setMinDistance(path[0].length - 1);
     return;
 }
@@ -296,11 +304,11 @@ export function pathFinderSetDistance(
     if (cache === "pathSetCache") {
         pathSetCache = { nodes: path, edges: edges };
         useStore.getState().setNumMinPaths(path.length);
-        useStore.getState().setPathIndex(0);
+        useStore.getState().setMinPathIndex(0);
     } else if (cache === "pathRangeCache") {
         pathRangeCache = { nodes: path, edges: edges };
         useStore.getState().setNumRangePaths(path.length);
-        useStore.getState().setPathIndex(0);
+        useStore.getState().setRangePathIndex(0);
     }
 
     return;

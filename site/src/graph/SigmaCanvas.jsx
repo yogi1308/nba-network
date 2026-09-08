@@ -28,9 +28,13 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     const view = useStore((s) => s.view);
     const path = useStore((s) => s.path);
     const pathIndex = useStore((s) => s.pathIndex);
+    const minPathIndex = useStore((s) => s.minPathIndex);
+    const rangePathIndex = useStore((s) => s.rangePathIndex);
     const pathRangeLow = useStore((s) => s.pathRangeLow);
     const pathRangeHigh = useStore((s) => s.pathRangeHigh);
     const minPathDistance = useStore((s) => s.minPathDistance);
+    const numMinPaths = useStore((s) => s.numMinPaths);
+    const numRangePaths = useStore((s) => s.numRangePaths);
     const containerRef = useRef(null);
     const sigmaRef = useRef(null);
     const setRef = useRef(null);
@@ -74,7 +78,7 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     function computeView() {
         if (view === "path" && player1 !== null && player2 !== null) {
             // this runs even when switched from alt to all
-            if (p1 !== player1 || p2 !== player2 || pType !== path || low !== pathRangeLow || high !== pathRangeHigh || minD !== minPathDistance) {
+            if (p1 !== player1 || p2 !== player2 || low !== pathRangeLow || high !== pathRangeHigh || minD !== minPathDistance) {
                 if (path === "alt" || path === "all") {
                     pathFinder(player1, player2);
                 } else if (path === "minLengthPathAlt" || path === "minLengthPathAll") {
@@ -108,18 +112,27 @@ export default function SigmaCanvas({ leftPanelOpen }) {
                 useStore.getState().setPathNodes(res.nodes);
                 return res;
             } else if (path === "minLengthPathAlt") {
-                console.log("Ran")
-                let res = getPaths(pathIndex, "pathSetCache");
+                let idx = minPathIndex < numMinPaths ? minPathIndex : 0;
+                if (idx !== minPathIndex) useStore.getState().setMinPathIndex(0);
+                let res = getPaths(idx, "pathSetCache");
                 useStore.getState().setPathNodes(res.nodes);
                 return res;
             } else if (path === "minLengthPathAll") {
                 return getPaths("all", "pathSetCache");
             } else if (path === "pathRangeAll") {
-                let res = getPaths("all", "pathRangeCache");
-                useStore.getState().setPathNodes(res.nodes);
-                return res;
+                if (pathRangeLow !== "" && pathRangeHigh !== "") {
+                    let res = getPaths("all", "pathRangeCache");
+                    useStore.getState().setPathNodes(res.nodes);
+                    return res;
+                }
             } else if (path === "pathRangeAlt") {
-                return getPaths(pathIndex, "pathRangeCache");
+                if (pathRangeLow !== "" && pathRangeHigh !== "") {
+                    let idx = rangePathIndex < numRangePaths ? rangePathIndex : 0;
+                    if (idx !== rangePathIndex) useStore.getState().setRangePathIndex(0);
+                    let res = getPaths(idx, "pathRangeCache");
+                    useStore.getState().setPathNodes(res.nodes);
+                    return res;
+                }
             }
         }
         if (sP !== selectedPlayer || (sP === null && selectedPlayer === null)) {
@@ -132,7 +145,7 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     useEffect(() => {
         setRef.current = computeView();
         sigmaRef.current?.refresh();
-    }, [sigma, selectedPlayer, depth, path, player1, player2, view, pathIndex, minPathDistance, pathRangeLow, pathRangeHigh]);
+    }, [sigma, selectedPlayer, depth, path, player1, player2, view, pathIndex, minPathIndex, rangePathIndex, minPathDistance, pathRangeLow, pathRangeHigh]);
 
     return (
         <div
