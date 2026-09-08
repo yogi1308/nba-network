@@ -104,7 +104,7 @@ function dfs(
 }
 
 function pathFinderEdges(path) {
-    let edges = new Set();
+    let edges = []
     for (const p of path) {
         let e = [];
         for (let index = 1; index < p.length; index++) {
@@ -118,13 +118,13 @@ function pathFinderEdges(path) {
                 }
             }
         }
-        edges.add(e);
+        edges.push(e);
     }
     return edges;
 }
 export function pathFinder(player1, player2) {
     if (player1 === null || player2 === null)
-        return { nodes: new Set(), edges: new Set() };
+        return { nodes: [], edges: [] };
 
     let q = [[player1, 0]];
     let found = false;
@@ -159,8 +159,7 @@ export function pathFinder(player1, player2) {
 
     let edges = pathFinderEdges(path);
 
-    console.log({ nodes: new Set(path), edges: edges });
-    return { nodes: new Set(path), edges: edges };
+    return { nodes: path, edges: edges };
 }
 
 export { graph };

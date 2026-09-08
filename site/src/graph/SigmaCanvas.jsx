@@ -1,6 +1,11 @@
 import { useEffect, useRef } from "react";
 import Sigma from "sigma";
-import { graph, scaleSize, visibleNodesAndEdges, pathFinder } from "./engine.js";
+import {
+    graph,
+    scaleSize,
+    visibleNodesAndEdges,
+    pathFinder,
+} from "./engine.js";
 import { drawDiscNodeHover } from "sigma/rendering";
 import { useStore } from "../store.js";
 
@@ -41,8 +46,8 @@ export default function SigmaCanvas({ leftPanelOpen }) {
                 const { edges } = setRef.current ?? { edges: new Set() };
                 return {
                     ...data,
-                    color: "#1c3f87", 
-                    hidden: !edges.has(edge)
+                    color: "#1c3f87",
+                    hidden: !edges.has(edge),
                 };
             },
         });
@@ -54,39 +59,29 @@ export default function SigmaCanvas({ leftPanelOpen }) {
         };
     }, []);
 
-    function computeView(params) {
-        if (view === "path" && player1 !== null && player2 !== null) { 
+    function computeView() {
+        if (view === "path" && player1 !== null && player2 !== null) {
             let { nodes, edges } = pathFinder(player1, player2);
-           if (path === "all") {
-               nodes = 
-               edges = 
-                   return {nodes: nodes, edges: edges}
-           }
-            else {
-
+            if (path === "all") {
+                useStore.getState().setNumPaths(nodes.length);
+                return {
+                    nodes: new Set(nodes.flat()),
+                    edges: new Set(edges.flat()),
+                };
+            } else {
+                return {
+                    nodes: new Set(nodes[pathIndex]),
+                    edges: new Set(edges[pathIndex]),
+                };
             }
         }
         return visibleNodesAndEdges(selectedPlayer, showEdges, depth);
-
-        
     }
 
     useEffect(() => {
-      setRef.current = computeView()
-    }, [sigma, selectedPlayer, showEdges, depth])
-    
-
-    useEffect(() => {
-        setRef.current = visibleNodesAndEdges(selectedPlayer, showEdges, depth);
+        setRef.current = computeView();
         sigmaRef.current?.refresh();
-    }, [depth, selectedPlayer, showEdges, sigma]);
-
-    useEffect(() => {
-        if (player1 === null || player2 === null) return
-      setRef.current = pathFinder(player1, player2) 
-        sigmaRef.current?.refresh();
-    }, [player1, player2])
-    
+    }, [sigma, selectedPlayer, showEdges, depth, path, player1, player2, view, pathIndex]);
 
     return (
         <div
