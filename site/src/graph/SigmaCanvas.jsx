@@ -7,6 +7,7 @@ import {
     pathFinder,
     sliceLayers,
     getPaths,
+    pathFinderSetDistance,
 } from "./engine.js";
 import { drawDiscNodeHover } from "sigma/rendering";
 import { useStore } from "../store.js";
@@ -15,6 +16,7 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     const [sP, setSP] = useState(null);
     const [p1, setP1] = useState(null);
     const [p2, setP2] = useState(null);
+    const [pType, setPType] = useState(null);
     const selectedPlayer = useStore((s) => s.selectedPlayer);
     const player1 = useStore((s) => s.player1);
     const player2 = useStore((s) => s.player2);
@@ -23,6 +25,8 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     const view = useStore((s) => s.view);
     const path = useStore((s) => s.path);
     const pathIndex = useStore((s) => s.pathIndex);
+    const pathRangeLow = useStore((s) => s.pathRangeLow);
+    const pathRangeHigh = useStore((s) => s.pathRangeHigh);
     const containerRef = useRef(null);
     const sigmaRef = useRef(null);
     const setRef = useRef(null);
@@ -65,17 +69,49 @@ export default function SigmaCanvas({ leftPanelOpen }) {
 
     function computeView() {
         if (view === "path" && player1 !== null && player2 !== null) {
-            if (p1 !== player1 || p2 !== player2) {
-                pathFinder(player1, player2);
-                setP1(player1)
-                setP2(player2)
+            // this runs even when switched from alt to all
+            if (p1 !== player1 || p2 !== player2 || pType !== path) {
+                if (path === "alt" || path === "all") {
+                    pathFinder(player1, player2);
+                } else if (path === "minLengthPathAlt" || path === "minLengthPathAll") {
+                    pathFinderSetDistance(
+                        player1,
+                        player2,
+                        pathRangeLow,
+                        pathRangeLow,
+                        "pathSetCache",
+                    );
+                } else if (path === "pathRangeAlt" || path === "pathRangeAll") {
+                    pathFinderSetDistance(
+                        player1,
+                        player2,
+                        pathRangeLow,
+                        pathRangeHigh,
+                        "pathRangeCache",
+                    );
+                }
+                setPType(path);
+                setP1(player1);
+                setP2(player2);
             }
             if (path === "all") {
-                return getPaths("all");
+                return getPaths("all", "pathCache");
             } else if (path === "alt") {
-                let res = getPaths(pathIndex);
+                let res = getPaths(pathIndex, "pathCache");
                 useStore.getState().setPathNodes(res.nodes);
                 return res;
+            } else if (path === "minLengthPathAlt") {
+                let res = getPaths(pathIndex, "pathSetCache");
+                useStore.getState().setPathNodes(res.nodes);
+                return res;
+            } else if (path === "minLengthPathAll") {
+                return getPaths("all", "pathSetCache");
+            } else if (path === "pathRangeAll") {
+                let res = getPaths("all", "pathRangeCache");
+                useStore.getState().setPathNodes(res.nodes);
+                return res;
+            } else if (path === "pathRangeAlt") {
+                return getPaths(pathIndex, "pathRangeCache");
             }
         }
         if (sP !== selectedPlayer || (sP === null && selectedPlayer === null)) {

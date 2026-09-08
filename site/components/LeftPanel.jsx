@@ -161,7 +161,13 @@ export default function LeftPanel({ open }) {
                         min={minDistance}
                         max={15}
                         disabled={view !== "path"}
-                        onChange={(e) => { useStore.getState().setMinPathDistance(e.target.value); useStore.getState().setPath("minLengthPathAlt") }}
+                        onChange={(e) => {
+                            useStore.getState().setMinPathDistance(e.target.value);
+                            const v = Number(e.target.value);
+                            if (v >= minDistance && v <= 15) {
+                                useStore.getState().setPath("minLengthPathAlt");
+                            }
+                        }}
                         placeholder={`${minDistance ?? 3} - 15`}
                     />
                     {minPathDistance > 0 &&
