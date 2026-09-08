@@ -131,15 +131,15 @@ export function pathFinder(player1, player2) {
     let foundDepth = 0;
     let dist = { [player1]: 0 };
     while (q) {
-        let player = q.shift();
-        if (found && player[1] + 1 > foundDepth) break;
-        for (const nb of graph.neighbors(player[0])) {
+        let [player, depth] = q.shift();
+        if (found && depth + 1 > foundDepth) break;
+        for (const nb of graph.neighbors(player)) {
             if (nb in dist) continue;
-            q.push([nb, player[1] + 1]);
-            dist[nb] = player[1] + 1;
+            q.push([nb, depth + 1]);
+            dist[nb] = depth + 1;
 
             if (nb === player2) {
-                if (!found) foundDepth = player[1];
+                if (!found) foundDepth = depth;
                 found = true;
                 break;
             }
@@ -178,5 +178,35 @@ export function getPaths(pathIndex) {
         edges: new Set(pathCache.edges[pathIndex]),
     };
 }
+
+// export function dfsSetDistance() {
+//     
+// }
+//
+// export function pathFinderSetDistance(player1, player2, minLength, maxLength=15) {
+//     if (player1 === null || player2 === null) {
+//         pathCache = { nodes: [], edges: [] };
+//         return;
+//     }
+//     let q = [[player1, 0]];
+//     let found = false;
+//     let foundDepth = 0;
+//     let dist = { [player1]: 0 };
+//     while (q) {
+//         let [player, depth] = q.shift();
+//         if (found && depth + 1 > foundDepth) break;
+//         for (const nb of graph.neighbors(player)) {
+//             if (nb in dist) continue;
+//             q.push([nb, depth + 1]);
+//             dist[nb] = depth + 1;
+//
+//             if (nb === player2 && depth > minLength && depth < maxLength) {
+//                 if (!found) foundDepth = depth;
+//                 found = true;
+//                 break;
+//             }
+//         }
+//     }
+// }
 
 export { graph };

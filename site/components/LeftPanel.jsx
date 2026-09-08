@@ -1,9 +1,9 @@
 import PlayerDropdown from "./PlayerDropdown";
 import ArrowLeftSVG from "../assests/svg/ArrowLeftSVG.jsx";
-import ShowConnectionsButton from "./ShowConnectionsButton";
 import { useStore } from "../src/store.js";
 import { useEffect, useState } from "react";
 import Slider from "./Slider.jsx";
+import NumberInput from "./NumberInput.jsx";
 import { maxDepthOf } from "../src/graph/engine.js";
 
 export default function LeftPanel({ open }) {
@@ -17,7 +17,7 @@ export default function LeftPanel({ open }) {
     const pathIndex = useStore((s) => s.pathIndex);
     const path = useStore((s) => s.path);
     const minDistance = useStore((s) => s.minDistance);
-    const [pathLength, setPathLength] = useState("");
+    const minPathDistance = useStore((s) => s.minPathDistance);
     const [distance1, setDistance1] = useState("");
     const [distance2, setDistance2] = useState("");
     useEffect(() => {
@@ -154,228 +154,207 @@ export default function LeftPanel({ open }) {
                             ? "Show A Single Shortest Path"
                             : "Show All Shortest Paths"}
                     </button>
-                    <div className="flex flex-col gap-1 mt-2">
-                        <label className="" htmlFor="path-length">
-                            Find Path of Distance
-                        </label>
-                        <input
-                            type="number"
-                            id="path-length"
-                            name="path-length"
-                            className={`border w-full border-white rounded-[5px] py-0.2 px-2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                    <NumberInput
+                        id="path-length"
+                        label="Find Path of Distance"
+                        value={minPathDistance}
+                        min={minDistance}
+                        max={15}
+                        disabled={view !== "path"}
+                        onChange={(e) => { useStore.getState().setMinPathDistance(e.target.value); useStore.getState().setPath("minLengthPathAlt") }}
+                        placeholder={`${minDistance ?? 3} - 15`}
+                    />
+                    {minPathDistance > 0 &&
+                        (minPathDistance < minDistance || minPathDistance > 15) && (
+                            <p className="text-red-400 text-sm">
+                                Must be between {minDistance} and 15
+                            </p>
+                        )}
+                    <div className="flex gap-4 mt-2 justify-center">
+                        {view === "normal" ? (
+                            <button
+                                className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
+                                disabled={player1 === null || player2 === null}
+                                onClick={() => {
+                                    useStore.getState().setView("path");
+                                    useStore.getState().setPath("alt");
+                                    if (pathIndex < numPaths - 1)
+                                        useStore.getState().setPathIndex(pathIndex + 1);
+                                    useStore.getState().setPathIndex(0);
+                                }}
+                            >
+                                Show Shortest Path
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    className={`border border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
+                                    disabled={pathIndex === 0}
+                                    onClick={() => {
+                                        useStore.getState().setView("path");
+                                        useStore.getState().setPath("alt");
+                                        if (pathIndex > 0) {
+                                            useStore.getState().setPathIndex(pathIndex - 1);
+                                        } else {
+                                            useStore.getState().setPathIndex(numPaths - 1);
+                                        }
+                                    }}
+                                >
+                                    <ArrowLeftSVG />
+                                </button>
+                                <p className="text-nowrap">
+                                    Path {pathIndex + 1} of {numPaths}
+                                </p>
+                                <button
+                                    className={`rotate-180 border border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
+                                    disabled={pathIndex === numPaths - 1}
+                                    onClick={() => {
+                                        useStore.getState().setView("path");
+                                        useStore.getState().setPath("alt");
+                                        if (pathIndex < numPaths - 1) {
+                                            useStore.getState().setPathIndex(pathIndex + 1);
+                                        } else {
+                                            useStore.getState().setPathIndex(0);
+                                        }
+                                    }}
+                                >
+                                    <ArrowLeftSVG />
+                                </button>
+                            </>
+                        )}
+                    </div>
+                    <button
+                        className={`border mt-2 w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
+                        disabled={player1 === null || player2 === null}
+                        onClick={() => {
+                            useStore.getState().setView("path");
+                            if (path === "all") {
+                                useStore.getState().setPath("alt");
+                            } else {
+                                useStore.getState().setPath("all");
+                            }
+                        }}
+                    >
+                        {path === "all"
+                            ? "Show A Single Shortest Path"
+                            : "Show All Shortest Paths"}
+                    </button>
+                    <div className="flex flex-col gap-1 ">
+                        <p className="relative translate-y-2">Find All Paths of Distances between</p>
+                        <div className="flex gap-2 justify-between">
+                        <NumberInput
+                            id="distance-1"
+                            label="Distance 1"
+                            value={distance1}
                             min={minDistance}
                             max={15}
-                            value={pathLength}
                             disabled={view !== "path"}
-                            onChange={(e) => setPathLength(e.target.value)}
+                            onChange={(e) => setDistance1(e.target.value)}
                             placeholder={`${minDistance ?? 3} - 15`}
                         />
-                        {pathLength !== "" &&
-                            (Number(pathLength) < minDistance || Number(pathLength) > 15) && (
-                                <p className="text-red-400 text-sm">
-                                    Must be between {minDistance} and 15
-                                </p>
-                            )}
-                        <div className="flex gap-4 mt-2 justify-center">
-                            {view === "normal" ? (
-                                <button
-                                    className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
-                                    disabled={player1 === null || player2 === null}
-                                    onClick={() => {
-                                        useStore.getState().setView("path");
-                                        useStore.getState().setPath("alt");
-                                        if (pathIndex < numPaths - 1)
-                                            useStore.getState().setPathIndex(pathIndex + 1);
-                                        useStore.getState().setPathIndex(0);
-                                    }}
-                                >
-                                    Show Shortest Path
-                                </button>
-                            ) : (
-                                <>
-                                    <button
-                                        className={`border border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
-                                        disabled={pathIndex === 0}
-                                        onClick={() => {
-                                            useStore.getState().setView("path");
-                                            useStore.getState().setPath("alt");
-                                            if (pathIndex > 0) {
-                                                useStore.getState().setPathIndex(pathIndex - 1);
-                                            } else {
-                                                useStore.getState().setPathIndex(numPaths - 1);
-                                            }
-                                        }}
-                                    >
-                                        <ArrowLeftSVG />
-                                    </button>
-                                    <p className="text-nowrap">
-                                        Path {pathIndex + 1} of {numPaths}
-                                    </p>
-                                    <button
-                                        className={`rotate-180 border border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
-                                        disabled={pathIndex === numPaths - 1}
-                                        onClick={() => {
-                                            useStore.getState().setView("path");
-                                            useStore.getState().setPath("alt");
-                                            if (pathIndex < numPaths - 1) {
-                                                useStore.getState().setPathIndex(pathIndex + 1);
-                                            } else {
-                                                useStore.getState().setPathIndex(0);
-                                            }
-                                        }}
-                                    >
-                                        <ArrowLeftSVG />
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                        <button
-                            className={`border mt-2 w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
-                            disabled={player1 === null || player2 === null}
-                            onClick={() => {
-                                useStore.getState().setView("path");
-                                if (path === "all") {
-                                    useStore.getState().setPath("alt");
-                                } else {
-                                    useStore.getState().setPath("all");
-                                }
-                            }}
-                        >
-                            {path === "all"
-                                ? "Show A Single Shortest Path"
-                                : "Show All Shortest Paths"}
-                        </button>
+                        <NumberInput
+                            id="distance-2"
+                            label="Distance 2"
+                            value={distance2}
+                            min={distance1 !== "" ? Number(distance1) + 1 : minDistance}
+                            max={15}
+                            disabled={view !== "path"}
+                            onChange={(e) => setDistance2(e.target.value)}
+                            placeholder={`${minDistance ?? 3} - 15`}
+                        />
                     </div>
-                    <div className="flex flex-col gap-1 mt-2">
-                        <p>Find All Paths of Distances between</p>
-                        <div className="flex gap-2 justify-between">
-                            <div>
-                                <label className="" htmlFor="distance-1">
-                                    Distance 1
-                                </label>
-                                <input
-                                    type="number"
-                                    id="distance-1"
-                                    name="distance-1"
-                                    className={`border w-full border-white rounded-[5px] py-0.2 px-2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
-                                    min={minDistance}
-                                    max={15}
-                                    value={distance1}
-                                    disabled={view !== "path"}
-                                    onChange={(e) => setDistance1(e.target.value)}
-                                    placeholder={`${minDistance ?? 3} - 15`}
-                                />
-                            </div>
-                            <div>
-                                <label className="" htmlFor="distance-2">
-                                    Distance 2
-                                </label>
-                                <input
-                                    type="number"
-                                    id="distance-2"
-                                    name="distance-2"
-                                    className={`border w-full border-white rounded-[5px] py-0.2 px-2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
-                                    min={distance1 !== "" ? Number(distance1) + 1 : minDistance}
-                                    max={15}
-                                    value={distance2}
-                                    disabled={view !== "path"}
-                                    onChange={(e) => setDistance2(e.target.value)}
-                                    placeholder={`${minDistance ?? 3} - 15`}
-                                />
-                            </div>
-                        </div>
 
-                        {distance1 !== "" &&
-                            (Number(distance1) < minDistance || Number(distance1) > 15) && (
-                                <p className="text-red-400 text-sm">
-                                    Distance 1 must be between {minDistance} and 15
-                                </p>
-                            )}
-                        {distance2 !== "" &&
-                            (Number(distance2) < minDistance || Number(distance2) > 15) && (
-                                <p className="text-red-400 text-sm">
-                                    Distance 2 must be between {minDistance} and 15
-                                </p>
-                            )}
-                        {distance1 !== "" &&
-                            distance2 !== "" &&
-                            Number(distance1) >= Number(distance2) && (
-                                <p className="text-red-400 text-sm">
-                                    Distance 1 must be less than Distance 2
-                                </p>
-                            )}
-                        <div className="flex gap-4 mt-2 justify-center">
-                            {view === "normal" ? (
+                    {distance1 !== "" &&
+                        (Number(distance1) < minDistance || Number(distance1) > 15) && (
+                            <p className="text-red-400 text-sm">
+                                Distance 1 must be between {minDistance} and 15
+                            </p>
+                        )}
+                    {distance2 !== "" &&
+                        (Number(distance2) < minDistance || Number(distance2) > 15) && (
+                            <p className="text-red-400 text-sm">
+                                Distance 2 must be between {minDistance} and 15
+                            </p>
+                        )}
+                    {distance1 !== "" &&
+                        distance2 !== "" &&
+                        Number(distance1) >= Number(distance2) && (
+                            <p className="text-red-400 text-sm">
+                                Distance 1 must be less than Distance 2
+                            </p>
+                        )}
+                    <div className="flex gap-4 mt-2 justify-center">
+                        {view === "normal" ? (
+                            <button
+                                className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
+                                disabled={player1 === null || player2 === null}
+                                onClick={() => {
+                                    useStore.getState().setView("path");
+                                    useStore.getState().setPath("alt");
+                                    if (pathIndex < numPaths - 1)
+                                        useStore.getState().setPathIndex(pathIndex + 1);
+                                    useStore.getState().setPathIndex(0);
+                                }}
+                            >
+                                Show Shortest Path
+                            </button>
+                        ) : (
+                            <>
                                 <button
-                                    className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
-                                    disabled={player1 === null || player2 === null}
+                                    className={`border border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
+                                    disabled={pathIndex === 0}
                                     onClick={() => {
                                         useStore.getState().setView("path");
                                         useStore.getState().setPath("alt");
-                                        if (pathIndex < numPaths - 1)
-                                            useStore.getState().setPathIndex(pathIndex + 1);
-                                        useStore.getState().setPathIndex(0);
+                                        if (pathIndex > 0) {
+                                            useStore.getState().setPathIndex(pathIndex - 1);
+                                        } else {
+                                            useStore.getState().setPathIndex(numPaths - 1);
+                                        }
                                     }}
                                 >
-                                    Show Shortest Path
+                                    <ArrowLeftSVG />
                                 </button>
-                            ) : (
-                                <>
-                                    <button
-                                        className={`border border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
-                                        disabled={pathIndex === 0}
-                                        onClick={() => {
-                                            useStore.getState().setView("path");
-                                            useStore.getState().setPath("alt");
-                                            if (pathIndex > 0) {
-                                                useStore.getState().setPathIndex(pathIndex - 1);
-                                            } else {
-                                                useStore.getState().setPathIndex(numPaths - 1);
-                                            }
-                                        }}
-                                    >
-                                        <ArrowLeftSVG />
-                                    </button>
-                                    <p className="text-nowrap">
-                                        Path {pathIndex + 1} of {numPaths}
-                                    </p>
-                                    <button
-                                        className={`rotate-180 border border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
-                                        disabled={pathIndex === numPaths - 1}
-                                        onClick={() => {
-                                            useStore.getState().setView("path");
-                                            useStore.getState().setPath("alt");
-                                            if (pathIndex < numPaths - 1) {
-                                                useStore.getState().setPathIndex(pathIndex + 1);
-                                            } else {
-                                                useStore.getState().setPathIndex(0);
-                                            }
-                                        }}
-                                    >
-                                        <ArrowLeftSVG />
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                        <button
-                            className={`border mt-2 w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
-                            disabled={player1 === null || player2 === null}
-                            onClick={() => {
-                                useStore.getState().setView("path");
-                                if (path === "all") {
-                                    useStore.getState().setPath("alt");
-                                } else {
-                                    useStore.getState().setPath("all");
-                                }
-                            }}
-                        >
-                            {path === "all"
-                                ? "Show A Single Shortest Path"
-                                : "Show All Shortest Paths"}
-                        </button>
+                                <p className="text-nowrap">
+                                    Path {pathIndex + 1} of {numPaths}
+                                </p>
+                                <button
+                                    className={`rotate-180 border border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
+                                    disabled={pathIndex === numPaths - 1}
+                                    onClick={() => {
+                                        useStore.getState().setView("path");
+                                        useStore.getState().setPath("alt");
+                                        if (pathIndex < numPaths - 1) {
+                                            useStore.getState().setPathIndex(pathIndex + 1);
+                                        } else {
+                                            useStore.getState().setPathIndex(0);
+                                        }
+                                    }}
+                                >
+                                    <ArrowLeftSVG />
+                                </button>
+                            </>
+                        )}
                     </div>
+                    <button
+                        className={`border mt-2 w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
+                        disabled={player1 === null || player2 === null}
+                        onClick={() => {
+                            useStore.getState().setView("path");
+                            if (path === "all") {
+                                useStore.getState().setPath("alt");
+                            } else {
+                                useStore.getState().setPath("all");
+                            }
+                        }}
+                    >
+                        {path === "all"
+                            ? "Show A Single Shortest Path"
+                            : "Show All Shortest Paths"}
+                    </button>
                 </div>
             </div>
         </div>
+        </div >
     );
 }

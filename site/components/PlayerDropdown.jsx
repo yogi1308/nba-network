@@ -88,7 +88,6 @@ export default function PlayerDropdown({ dataFor }) {
     function pickOption(option) {
         if (dataFor === "selectedPlayer") {
             useStore.getState().setSelectedPlayer(option.key);
-            useStore.getState().setView("normal");
         } else if (dataFor === "player1") {
             useStore.getState().setPlayer1(option.key);
         } else if (dataFor === "player2") {
