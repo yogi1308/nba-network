@@ -18,8 +18,10 @@ export default function LeftPanel({ open }) {
     const path = useStore((s) => s.path);
     const minDistance = useStore((s) => s.minDistance);
     const minPathDistance = useStore((s) => s.minPathDistance);
-    const [distance1, setDistance1] = useState("");
-    const [distance2, setDistance2] = useState("");
+    const numMinPaths = useStore((s) => s.numMinPaths);
+    const numRangePaths = useStore((s) => s.numRangePaths);
+    const pathRangeLow = useStore((s) => s.pathRangeLow);
+    const pathRangeHigh = useStore((s) => s.pathRangeHigh);
     useEffect(() => {
         setMaxDepth(selectedPlayer ? maxDepthOf(selectedPlayer) : 9);
     }, [selectedPlayer]);
@@ -86,7 +88,7 @@ export default function LeftPanel({ open }) {
                         </div>
                     </div>
                     <div className="flex gap-4 mt-2 justify-center">
-                        {view === "normal" ? (
+                        {view === "normal" || path !== "alt" ? (
                             <button
                                 className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
                                 disabled={player1 === null || player2 === null}
@@ -177,19 +179,19 @@ export default function LeftPanel({ open }) {
                             </p>
                         )}
                     <div className="flex gap-4 mt-2 justify-center">
-                        {view === "normal" ? (
+                        {view === "normal" || path !== "minLengthPathAlt" ? (
                             <button
                                 className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
                                 disabled={player1 === null || player2 === null}
                                 onClick={() => {
                                     useStore.getState().setView("path");
-                                    useStore.getState().setPath("alt");
+                                    useStore.getState().setPath("minLengthPathAlt");
                                     if (pathIndex < numPaths - 1)
                                         useStore.getState().setPathIndex(pathIndex + 1);
                                     useStore.getState().setPathIndex(0);
                                 }}
                             >
-                                Show Shortest Path
+                            Show Path of Length {minPathDistance}
                             </button>
                         ) : (
                             <>
@@ -209,7 +211,7 @@ export default function LeftPanel({ open }) {
                                     <ArrowLeftSVG />
                                 </button>
                                 <p className="text-nowrap">
-                                    Path {pathIndex + 1} of {numPaths}
+                                    Path {pathIndex + 1} of {numMinPaths}
                                 </p>
                                 <button
                                     className={`rotate-180 border border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
@@ -253,58 +255,82 @@ export default function LeftPanel({ open }) {
                             <NumberInput
                                 id="distance-1"
                                 label="Distance 1"
-                                value={distance1}
+                                value={pathRangeLow}
                                 min={minDistance}
                                 max={15}
                                 disabled={view !== "path"}
-                                onChange={(e) => setDistance1(e.target.value)}
+                                onChange={(e) => {
+                                    useStore.getState().setPathRangeLow(e.target.value);
+                                    const lo = Number(e.target.value);
+                                    const hi = Number(pathRangeHigh);
+                                    if (
+                                        lo >= minDistance &&
+                                        lo <= 15 &&
+                                        hi >= minDistance &&
+                                        hi <= 15 &&
+                                        lo < hi
+                                    ) {
+                                        useStore.getState().setPath("pathRangeAlt");
+                                    }
+                                }}
                                 placeholder={`${minDistance ?? 3} - 15`}
                             />
                             <NumberInput
                                 id="distance-2"
                                 label="Distance 2"
-                                value={distance2}
-                                min={distance1 !== "" ? Number(distance1) + 1 : minDistance}
+                                value={pathRangeHigh}
+                                min={pathRangeLow !== "" ? Number(pathRangeLow) + 1 : minDistance}
                                 max={15}
                                 disabled={view !== "path"}
-                                onChange={(e) => setDistance2(e.target.value)}
+                                onChange={(e) => {
+                                    useStore.getState().setPathRangeHigh(e.target.value);
+                                    const lo = Number(pathRangeLow);
+                                    const hi = Number(e.target.value);
+                                    if (
+                                        lo >= minDistance &&
+                                        lo <= 15 &&
+                                        hi >= minDistance &&
+                                        hi <= 15 &&
+                                        lo < hi
+                                    ) {
+                                        useStore.getState().setPath("pathRangeAlt");
+                                    }
+                                }}
                                 placeholder={`${minDistance ?? 3} - 15`}
                             />
                         </div>
 
-                        {distance1 !== "" &&
-                            (Number(distance1) < minDistance || Number(distance1) > 15) && (
+                        {pathRangeLow !== "" &&
+                            (Number(pathRangeLow) < minDistance || Number(pathRangeLow) > 15) && (
                                 <p className="text-red-400 text-sm">
                                     Distance 1 must be between {minDistance} and 15
                                 </p>
                             )}
-                        {distance2 !== "" &&
-                            (Number(distance2) < minDistance || Number(distance2) > 15) && (
+                        {pathRangeHigh !== "" &&
+                            (Number(pathRangeHigh) < minDistance || Number(pathRangeHigh) > 15) && (
                                 <p className="text-red-400 text-sm">
                                     Distance 2 must be between {minDistance} and 15
                                 </p>
                             )}
-                        {distance1 !== "" &&
-                            distance2 !== "" &&
-                            Number(distance1) >= Number(distance2) && (
+                        {pathRangeLow !== "" &&
+                            pathRangeHigh !== "" &&
+                            Number(pathRangeLow) >= Number(pathRangeHigh) && (
                                 <p className="text-red-400 text-sm">
                                     Distance 1 must be less than Distance 2
                                 </p>
                             )}
                         <div className="flex gap-4 mt-2 justify-center">
-                            {view === "normal" ? (
+                            {view === "normal" || path !== "pathRangeAlt" ? (
                                 <button
                                     className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
                                     disabled={player1 === null || player2 === null}
                                     onClick={() => {
                                         useStore.getState().setView("path");
-                                        useStore.getState().setPath("alt");
-                                        if (pathIndex < numPaths - 1)
-                                            useStore.getState().setPathIndex(pathIndex + 1);
+                                        useStore.getState().setPath("pathRangeAlt");
                                         useStore.getState().setPathIndex(0);
                                     }}
                                 >
-                                    Show Shortest Path
+                                    Show Path of Length {pathRangeLow} - {pathRangeHigh}
                                 </button>
                             ) : (
                                 <>
@@ -313,26 +339,26 @@ export default function LeftPanel({ open }) {
                                         disabled={pathIndex === 0}
                                         onClick={() => {
                                             useStore.getState().setView("path");
-                                            useStore.getState().setPath("alt");
+                                            useStore.getState().setPath("pathRangeAlt");
                                             if (pathIndex > 0) {
                                                 useStore.getState().setPathIndex(pathIndex - 1);
                                             } else {
-                                                useStore.getState().setPathIndex(numPaths - 1);
+                                                useStore.getState().setPathIndex(numRangePaths - 1);
                                             }
                                         }}
                                     >
                                         <ArrowLeftSVG />
                                     </button>
                                     <p className="text-nowrap">
-                                        Path {pathIndex + 1} of {numPaths}
+                                        Path {pathIndex + 1} of {numRangePaths}
                                     </p>
                                     <button
                                         className={`rotate-180 border border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white `}
-                                        disabled={pathIndex === numPaths - 1}
+                                        disabled={pathIndex === numRangePaths - 1}
                                         onClick={() => {
                                             useStore.getState().setView("path");
-                                            useStore.getState().setPath("alt");
-                                            if (pathIndex < numPaths - 1) {
+                                            useStore.getState().setPath("pathRangeAlt");
+                                            if (pathIndex < numRangePaths - 1) {
                                                 useStore.getState().setPathIndex(pathIndex + 1);
                                             } else {
                                                 useStore.getState().setPathIndex(0);
@@ -349,16 +375,16 @@ export default function LeftPanel({ open }) {
                             disabled={player1 === null || player2 === null}
                             onClick={() => {
                                 useStore.getState().setView("path");
-                                if (path === "all") {
-                                    useStore.getState().setPath("alt");
+                                if (path === "pathRangeAll") {
+                                    useStore.getState().setPath("pathRangeAlt");
                                 } else {
-                                    useStore.getState().setPath("all");
+                                    useStore.getState().setPath("pathRangeAll");
                                 }
                             }}
                         >
-                            {path === "all"
-                                ? "Show A Single Shortest Path"
-                                : "Show All Shortest Paths"}
+                            {path === "pathRangeAll"
+                                ? `Show A Single Path of Length ${pathRangeLow} - ${pathRangeHigh}`
+                                : `Show All Paths of Length ${pathRangeLow} - ${pathRangeHigh}`}
                         </button>
                     </div>
                 </div>

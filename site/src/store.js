@@ -14,8 +14,10 @@ export const useStore = create((set) => ({
     cumulativeNodes: 5122,
     pathNodes: [],
     minPathDistance: "",
-    pathRangeLow: 0,
-    pathRangeHigh: 0,
+    pathRangeLow: "",
+    pathRangeHigh: "",
+    numMinPaths: 0,
+    numRangePaths: 0,
 
     setSelectedPlayer: (id) => set({ selectedPlayer: id, view: "normal" }),
     setDepth: (d) => set({ depth: d }),
@@ -40,4 +42,6 @@ export const useStore = create((set) => ({
     setMinPathDistance: (d) => set({ minPathDistance: d }),
     setPathRangeLow: (d) => set({ pathRangeLow: d }),
     setPathRangeHigh: (d) => set({ pathRangeHigh: d }),
+    setNumMinPaths: (d) => set({ numMinPaths: d }),
+    setNumRangePaths: (d) => set({ numRangePaths: d }),
 }));

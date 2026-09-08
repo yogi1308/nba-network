@@ -295,11 +295,11 @@ export function pathFinderSetDistance(
     let edges = pathFinderEdges(path);
     if (cache === "pathSetCache") {
         pathSetCache = { nodes: path, edges: edges };
-        useStore.getState().setNumPaths(path.length);
+        useStore.getState().setNumMinPaths(path.length);
         useStore.getState().setPathIndex(0);
     } else if (cache === "pathRangeCache") {
         pathRangeCache = { nodes: path, edges: edges };
-        useStore.getState().setNumPaths(path.length);
+        useStore.getState().setNumRangePaths(path.length);
         useStore.getState().setPathIndex(0);
     }
 
