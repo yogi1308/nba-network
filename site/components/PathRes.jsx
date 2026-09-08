@@ -11,7 +11,7 @@ export default function PathRes({ lPanelState }) {
     const nameOf = (id) => (id !== null ? graph.getNodeAttributes(id).label : "");
     return (
         <div
-            className={` absolute top-1 ${lPanelState === "open" ? "left-84" : "left-8"} transition-all duration-300 ease-in`}
+            className={` absolute z-1 top-1 ${lPanelState === "open" ? "left-84" : "left-8"} transition-all duration-300 ease-in`}
         >
             <p className="text-xl font-bold">
                 Found {numPaths}{" "}
