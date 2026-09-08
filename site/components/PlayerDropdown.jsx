@@ -18,9 +18,9 @@ const PLAYER2 = { key: null, label: "Player 2" };
 
 export default function PlayerDropdown({ dataFor }) {
     // selectedKey: currently chosen player node id (null = All Players).
-    const [selectedKey, setSelectedKey] = useState(null);
-    const [player1, setPlayer1] = useState(null);
-    const [player2, setPlayer2] = useState(null);
+    const selectedKey = useStore((s) => s.selectedPlayer);
+    const player1 = useStore((s) => s.player1);
+    const player2 = useStore((s) => s.player2);
     // query: whatever the user is currently typing into the search box.
     const [query, setQuery] = useState("");
     // isOpen: whether the options list is shown.
@@ -37,9 +37,11 @@ export default function PlayerDropdown({ dataFor }) {
     // The "clear selection" option, chosen by which context the dropdown
     // is used in, so its label varies with the dataFor prop.
     const defaultOption =
-        dataFor === "player1" ? PLAYER1 :
-        dataFor === "player2" ? PLAYER2 :
-        ALL_OPTION;
+        dataFor === "player1"
+            ? PLAYER1
+            : dataFor === "player2"
+                ? PLAYER2
+                : ALL_OPTION;
 
     // What to show in the input when the user is not typing: the selected
     // player's name, or the default option label if nothing is chosen.
@@ -47,8 +49,8 @@ export default function PlayerDropdown({ dataFor }) {
         (dataFor === "player1"
             ? ALL_PLAYERS.find((p) => p.key === player1)?.label
             : dataFor === "player2"
-              ? ALL_PLAYERS.find((p) => p.key === player2)?.label
-              : ALL_PLAYERS.find((p) => p.key === selectedKey)?.label) ??
+                ? ALL_PLAYERS.find((p) => p.key === player2)?.label
+                : ALL_PLAYERS.find((p) => p.key === selectedKey)?.label) ??
         defaultOption.label;
 
     // The rows to render in the dropdown, recomputed only when the query changes.
@@ -62,19 +64,6 @@ export default function PlayerDropdown({ dataFor }) {
         const allMatches = !q || defaultOption.label.toLowerCase().includes(q);
         return [...(allMatches ? [defaultOption] : []), ...matches];
     }, [query]);
-
-    useEffect(() => {
-        if (dataFor === "selectedPlayer") {
-            useStore.getState().setSelectedPlayer(selectedKey);
-            useStore.getState().setView("normal")
-        } else if (dataFor === "player1") {
-            useStore.getState().setPlayer1(player1);
-            useStore.getState().setView("path")
-        } else if (dataFor === "player2") {
-            useStore.getState().setPlayer2(player2);
-            useStore.getState().setView("path")
-        }
-    }, [dataFor, player1, player2, selectedKey]);
 
     // Close the dropdown when the user clicks anywhere outside it.
     useEffect(() => {
@@ -98,15 +87,19 @@ export default function PlayerDropdown({ dataFor }) {
     // input goes back to showing the player's name instead of the query text.
     function pickOption(option) {
         if (dataFor === "selectedPlayer") {
-            setSelectedKey(option.key);
+            useStore.getState().setSelectedPlayer(option.key);
+            useStore.getState().setView("normal");
         } else if (dataFor === "player1") {
-            setPlayer1(option.key);
+            useStore.getState().setPlayer1(option.key);
         } else if (dataFor === "player2") {
-            setPlayer2(option.key);
+            useStore.getState().setPlayer2(option.key);
         }
         setQuery("");
         setIsOpen(false);
         inputRef.current?.blur();
+        if (player1 !== null && player2 !== null) {
+            useStore.getState().setView("path");
+        }
     }
 
     // Full keyboard navigation for the combobox.

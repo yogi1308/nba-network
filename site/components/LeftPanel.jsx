@@ -10,8 +10,9 @@ export default function LeftPanel({ open }) {
     const player1 = useStore((s) => s.player1);
     const player2 = useStore((s) => s.player2);
     const [maxDepth, setMaxDepth] = useState(9);
-    const { view, numPaths, pathIndex } = useStore.getState();
-
+    const view = useStore((s) => s.view);
+    const numPaths = useStore((s) => s.numPaths);
+    const pathIndex = useStore((s) => s.pathIndex);
     useEffect(() => {
         setMaxDepth(selectedPlayer ? maxDepthOf(selectedPlayer) : 9);
     }, [selectedPlayer]);
@@ -21,10 +22,6 @@ export default function LeftPanel({ open }) {
             className={`overflow-hidden py-8 transition-all duration-300 ease-in h-screen rounded-[8px] border border-[#262a30] ${open === "open" ? "w-[20rem]" : "w-0 border-0"}`}
         >
             <div className="mx-1.5 flex flex-col gap-4">
-                {/* <div className="flex flex-col gap-1"> */}
-                {/*     <p className="text-xl font-bold">Filter Players TODO</p> */}
-                {/*     <PlayerDropdown dataFor={"selectedPlayer"} /> */}
-                {/* </div> */}
                 <div className="flex flex-col gap-4">
                     <p className="text-xl font-bold">Search Player</p>
                     <PlayerDropdown dataFor={"selectedPlayer"} />
@@ -51,7 +48,7 @@ export default function LeftPanel({ open }) {
                     )}
                 </div>
                 <div className="flex flex-col gap-1">
-                    <p className="text-xl font-bold">Path Finder TODO</p>
+                    <p className="text-xl font-bold">Shortest Path</p>
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-1">
                             <p>Player 1</p>
@@ -93,7 +90,7 @@ export default function LeftPanel({ open }) {
                                 >
                                     Next Path
                                 </button>
-                                <p className="flex-1">Path {pathIndex + 1}</p>
+                                <p className="text-nowrap">Path {pathIndex + 1}</p>
                                 <button
                                     className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 `}
                                     onClick={() => {
