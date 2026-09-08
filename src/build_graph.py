@@ -11,6 +11,11 @@ from fa2 import ForceAtlas2
 def load_graph():
     G = nx.Graph()
     id_to_name = {}
+    team_names = {}
+
+    with open("data/team_names.csv", "r") as team_file:
+        for row in csv.DictReader(team_file):
+            team_names[row["team_id"]] = row["team_name"]
 
     with (
         open("data/final_data.csv", "r") as data_file,
@@ -33,7 +38,7 @@ def load_graph():
             elif entry not in G[a][b]["seasons"]:
                 G[a][b]["seasons"].add(entry)
 
-    return G, id_to_name
+    return G, id_to_name, team_names
 
 
 def check_graph(G):
@@ -56,10 +61,6 @@ def annotate_size_and_weight(G):
 
     for u, v, data in G.edges(data=True):
         data["weight"] = len(data["seasons"])
-
-def annotate_max_depth(G):
-    for n, ecc in nx.eccentricity(G).items():
-        G.nodes[n]["maxDepth"] = ecc
 
 
 def sunflower_layout(G, x_radius, y_radius, seed):
@@ -102,7 +103,7 @@ def compute_layout(G):
     )
 
 
-def build_graph_json(G, id_to_name, x_stretch):
+def build_graph_json(G, id_to_name, team_names, x_stretch):
     return {
         "nodes": [
             {
@@ -112,27 +113,43 @@ def build_graph_json(G, id_to_name, x_stretch):
                     "x": G.nodes[n]["pos"][0] * x_stretch,
                     "y": G.nodes[n]["pos"][1],
                     "size": max(2, G.nodes[n]["size"] ** 0.5),
-                    "maxDepth": G.nodes[n]["maxDepth"],
                 },
             }
             for n in G.nodes()
         ],
         "edges": [
-            {"source": u, "target": v, "attributes": {"weight": data["weight"]}}
+            {
+                "source": u,
+                "target": v,
+                "attributes": {
+                    "weight": data["weight"],
+                    "seasons": [
+                        {"season": s, "team": t, "teamName": team_names.get(t, t)}
+                        for s, t in sorted(data["seasons"])
+                    ],
+                },
+            }
             for u, v, data in G.edges(data=True)
         ],
     }
 
 
 def main():
-    G, id_to_name = load_graph()
+    print("loading graph...")
+    G, id_to_name, team_names = load_graph()
+    print("graph loaded")
     check_graph(G)
 
+    print("annotating size and weight...")
     annotate_size_and_weight(G)
-    annotate_max_depth(G)
-    compute_layout(G)
+    print("size and weight done")
 
-    graph_json = build_graph_json(G, id_to_name, x_stretch=2.00)
+    print("computing layout...")
+    compute_layout(G)
+    print("layout done")
+
+    print("writing graph json...")
+    graph_json = build_graph_json(G, id_to_name, team_names, x_stretch=2.00)
     with open("data/network.json", "w") as f:
         json.dump(graph_json, f, indent=2)
     print("saved data/network.json")

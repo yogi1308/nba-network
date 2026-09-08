@@ -13,12 +13,22 @@ let pathSetCache = {};
 let pathRangeCache = {};
 const MAX_PATHS = 100;
 
-const maxDepthMap = new Map(
-    data.nodes.map((n) => [n.key, n.attributes.maxDepth]),
-);
-
 export function maxDepthOf(key) {
-    return maxDepthMap.get(key) ?? 9;
+    let depth = 0
+    let q = [[key, 0]]
+    let visited = new Set([key])
+    while (q.length) {
+        const [player, d] = q.shift()
+        depth = Math.max(depth, d)
+        for (const nb of graph.neighbors(player)) {
+            if (visited.has(nb)) {
+                continue    
+            }
+            visited.add(nb)
+            q.push([nb, d + 1])
+        }
+    }
+    return depth
 }
 
 const degrees = graph.nodes().map((n) => graph.degree(n));
