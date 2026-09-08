@@ -162,6 +162,7 @@ export function pathFinder(player1, player2) {
     pathCache = { nodes: path, edges: edges };
     useStore.getState().setNumPaths(path.length);
     useStore.getState().setPathIndex(0);
+    useStore.getState().setMinDistance(path[0].length);
     return;
 }
 

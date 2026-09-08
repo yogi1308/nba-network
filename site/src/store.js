@@ -12,6 +12,7 @@ export const useStore = create((set) => ({
     pathIndex: 0,
     numPaths: 0,
     cumulativeNodes: 5122,
+    pathNodes: [],  
 
     setSelectedPlayer: (id) => set({ selectedPlayer: id, view: "normal" }),
     setDepth: (d) => set({ depth: d }),
@@ -32,4 +33,5 @@ export const useStore = create((set) => ({
     setPathIndex: (s) => set({ pathIndex: s }),
     setNumPaths: (s) => set({ numPaths: s }),
     setCumulativeNodes: (d) => set({ cumulativeNodes: d }),
+    setPathNodes: (n) => set({ pathNodes: n }),
 }));

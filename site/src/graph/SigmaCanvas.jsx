@@ -73,7 +73,9 @@ export default function SigmaCanvas({ leftPanelOpen }) {
             if (path === "all") {
                 return getPaths("all");
             } else {
-                return getPaths(pathIndex)
+                let res = getPaths(pathIndex)
+                useStore.getState().setPathNodes(res.nodes)
+                return res
             }
         }
         if (sP !== selectedPlayer || (sP === null && selectedPlayer === null)) {

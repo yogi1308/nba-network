@@ -5,10 +5,11 @@ import SidebarSVG from "../assests/svg/SidebarSVG.jsx";
 import { useEffect } from "react";
 import { useStore } from "./store.js";
 import CanvasControls from "../components/CanvasControls.jsx";
+import PathRes from "../components/PathRes.jsx";
 
 export default function App() {
-    const [rPanelState, setRPanelState] = useState("open");
     const [lPanelState, setLPanelState] = useState("open");
+    const view = useStore((s) => s.view);
     useEffect(() => {
         setTimeout(() => {
             const { sigma } = useStore.getState();
@@ -17,10 +18,10 @@ export default function App() {
                 sigma.scheduleRefresh();
             }
         }, 320);
-    }, [lPanelState, rPanelState]);
+    }, [lPanelState]);
 
     return (
-        <div className="flex flex-row">
+        <div className="relative flex flex-row">
             <div className="relative">
                 <button
                     title={lPanelState === "open" ? "Close Sidebar" : "Open Sidebar"}
@@ -42,6 +43,7 @@ export default function App() {
                     <CanvasControls />
                 </div>
             </div>
+            {view === "path" && <PathRes lPanelState={lPanelState} />}
             <SigmaCanvas leftPanelOpen={lPanelState === "open"} />
         </div>
     );
