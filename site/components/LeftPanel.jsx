@@ -101,6 +101,21 @@ export default function LeftPanel({ open }) {
                                     onClick={() => {
                                         useStore.getState().setView("path");
                                         useStore.getState().setPath("alt");
+                                        if (pathIndex > 0) {
+                                            useStore.getState().setPathIndex(pathIndex - 1);
+                                        } else {
+                                            useStore.getState().setPathIndex(numPaths - 1);
+                                        }
+                                    }}
+                                >
+                                    Previous Path
+                                </button>
+                                <p className="text-nowrap">Path {pathIndex + 1}</p>
+                                <button
+                                    className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 `}
+                                    onClick={() => {
+                                        useStore.getState().setView("path");
+                                        useStore.getState().setPath("alt");
                                         if (pathIndex < numPaths - 1) {
                                             useStore.getState().setPathIndex(pathIndex + 1);
                                         } else {
@@ -109,21 +124,6 @@ export default function LeftPanel({ open }) {
                                     }}
                                 >
                                     Next Path
-                                </button>
-                                <p className="text-nowrap">Path {pathIndex + 1}</p>
-                                <button
-                                    className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 `}
-                                    onClick={() => {
-                                        useStore.getState().setView("path");
-                                        useStore.getState().setPath("alt");
-                                        if (pathIndex - 1 > 0) {
-                                            useStore.getState().setPathIndex(pathIndex - 1);
-                                        } else {
-                                            useStore.getState().setPathIndex(numPaths - 1);
-                                        }
-                                    }}
-                                >
-                                    Previous Path
                                 </button>
                             </>
                         )}

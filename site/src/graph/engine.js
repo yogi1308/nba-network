@@ -7,7 +7,8 @@ const res = await fetch("/data/network.json");
 const data = await res.json();
 graph.import(data);
 
-export let layers = {};
+let layers = {};
+let pathCache = {};
 
 const maxDepthMap = new Map(
     data.nodes.map((n) => [n.key, n.attributes.maxDepth]),
@@ -121,8 +122,10 @@ function pathFinderEdges(path) {
     return edges;
 }
 export function pathFinder(player1, player2) {
-    if (player1 === null || player2 === null) return { nodes: [], edges: [] };
-
+    if (player1 === null || player2 === null) {
+        pathCache = { nodes: [], edges: [] };
+        return;
+    }
     let q = [[player1, 0]];
     let found = false;
     let foundDepth = 0;
@@ -156,7 +159,23 @@ export function pathFinder(player1, player2) {
 
     let edges = pathFinderEdges(path);
 
-    return { nodes: path, edges: edges };
+    pathCache = { nodes: path, edges: edges };
+    useStore.getState().setNumPaths(path.length);
+    useStore.getState().setPathIndex(0);
+    return;
+}
+
+export function getPaths(pathIndex) {
+    if (pathIndex === "all") {
+        return {
+            nodes: new Set(pathCache.nodes.flat()),
+            edges: new Set(pathCache.edges.flat()),
+        };
+    }
+    return {
+        nodes: new Set(pathCache.nodes[pathIndex]),
+        edges: new Set(pathCache.edges[pathIndex]),
+    };
 }
 
 export { graph };

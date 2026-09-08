@@ -5,13 +5,16 @@ import {
     scaleSize,
     visibleNodesAndEdges,
     pathFinder,
-    sliceLayers
+    sliceLayers,
+    getPaths,
 } from "./engine.js";
 import { drawDiscNodeHover } from "sigma/rendering";
 import { useStore } from "../store.js";
 
 export default function SigmaCanvas({ leftPanelOpen }) {
-    const [sP, setSP] = useState(null)
+    const [sP, setSP] = useState(null);
+    const [p1, setP1] = useState(null);
+    const [p2, setP2] = useState(null);
     const selectedPlayer = useStore((s) => s.selectedPlayer);
     const player1 = useStore((s) => s.player1);
     const player2 = useStore((s) => s.player2);
@@ -62,25 +65,22 @@ export default function SigmaCanvas({ leftPanelOpen }) {
 
     function computeView() {
         if (view === "path" && player1 !== null && player2 !== null) {
-            let { nodes, edges } = pathFinder(player1, player2);
+            if (p1 !== player1 || p2 !== player2) {
+                pathFinder(player1, player2);
+                setP1(player1)
+                setP2(player2)
+            }
             if (path === "all") {
-                useStore.getState().setNumPaths(nodes.length);
-                return {
-                    nodes: new Set(nodes.flat()),
-                    edges: new Set(edges.flat()),
-                };
+                return getPaths("all");
             } else {
-                return {
-                    nodes: new Set(nodes[pathIndex]),
-                    edges: new Set(edges[pathIndex]),
-                };
+                return getPaths(pathIndex)
             }
         }
         if (sP !== selectedPlayer || (sP === null && selectedPlayer === null)) {
-            setSP(selectedPlayer)
+            setSP(selectedPlayer);
             visibleNodesAndEdges(selectedPlayer);
         }
-        return sliceLayers(depth)
+        return sliceLayers(depth);
     }
 
     useEffect(() => {
