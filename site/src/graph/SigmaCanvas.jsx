@@ -17,6 +17,9 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     const [p1, setP1] = useState(null);
     const [p2, setP2] = useState(null);
     const [pType, setPType] = useState(null);
+    const [minD, setMinD] = useState(0)
+    const [low, setlow] = useState(0)
+    const [high, sethigh] = useState(0)
     const selectedPlayer = useStore((s) => s.selectedPlayer);
     const player1 = useStore((s) => s.player1);
     const player2 = useStore((s) => s.player2);
@@ -27,6 +30,7 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     const pathIndex = useStore((s) => s.pathIndex);
     const pathRangeLow = useStore((s) => s.pathRangeLow);
     const pathRangeHigh = useStore((s) => s.pathRangeHigh);
+    const minPathDistance = useStore((s) => s.minPathDistance);
     const containerRef = useRef(null);
     const sigmaRef = useRef(null);
     const setRef = useRef(null);
@@ -70,15 +74,15 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     function computeView() {
         if (view === "path" && player1 !== null && player2 !== null) {
             // this runs even when switched from alt to all
-            if (p1 !== player1 || p2 !== player2 || pType !== path) {
+            if (p1 !== player1 || p2 !== player2 || pType !== path || low !== pathRangeLow || high !== pathRangeHigh || minD !== minPathDistance) {
                 if (path === "alt" || path === "all") {
                     pathFinder(player1, player2);
                 } else if (path === "minLengthPathAlt" || path === "minLengthPathAll") {
                     pathFinderSetDistance(
                         player1,
                         player2,
-                        pathRangeLow,
-                        pathRangeLow,
+                        minPathDistance,
+                        minPathDistance,
                         "pathSetCache",
                     );
                 } else if (path === "pathRangeAlt" || path === "pathRangeAll") {
@@ -93,6 +97,9 @@ export default function SigmaCanvas({ leftPanelOpen }) {
                 setPType(path);
                 setP1(player1);
                 setP2(player2);
+                setlow(pathRangeLow)
+                sethigh(pathRangeHigh)
+                setMinD(minPathDistance)
             }
             if (path === "all") {
                 return getPaths("all", "pathCache");
@@ -124,7 +131,7 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     useEffect(() => {
         setRef.current = computeView();
         sigmaRef.current?.refresh();
-    }, [sigma, selectedPlayer, depth, path, player1, player2, view, pathIndex]);
+    }, [sigma, selectedPlayer, depth, path, player1, player2, view, pathIndex, minPathDistance, pathRangeLow, pathRangeHigh]);
 
     return (
         <div

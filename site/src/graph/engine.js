@@ -9,8 +9,8 @@ graph.import(data);
 
 let layers = {};
 let pathCache = {};
-let pathSetCache = {}
-let pathRangeCache = {}
+let pathSetCache = {};
+let pathRangeCache = {};
 
 const maxDepthMap = new Map(
     data.nodes.map((n) => [n.key, n.attributes.maxDepth]),
@@ -158,7 +158,6 @@ export function pathFinder(player1, player2) {
         new Set([player2]),
         [],
     );
-    console.log(path)
 
     let edges = pathFinderEdges(path);
 
@@ -175,8 +174,7 @@ export function getPaths(pathIndex, cache) {
             nodes: new Set(pathCache.nodes.flat()),
             edges: new Set(pathCache.edges.flat()),
         };
-    }
-    else if (cache === "pathCache") {
+    } else if (cache === "pathCache") {
         return {
             nodes: new Set(pathCache.nodes[pathIndex]),
             edges: new Set(pathCache.edges[pathIndex]),
@@ -187,8 +185,7 @@ export function getPaths(pathIndex, cache) {
             nodes: new Set(pathSetCache.nodes.flat()),
             edges: new Set(pathSetCache.edges.flat()),
         };
-    }
-    else if (cache === "pathSetCache") {
+    } else if (cache === "pathSetCache") {
         return {
             nodes: new Set(pathSetCache.nodes[pathIndex]),
             edges: new Set(pathSetCache.edges[pathIndex]),
@@ -199,8 +196,7 @@ export function getPaths(pathIndex, cache) {
             nodes: new Set(pathRangeCache.nodes.flat()),
             edges: new Set(pathRangeCache.edges.flat()),
         };
-    }
-    else if (cache === "pathRangeCache") {
+    } else if (cache === "pathRangeCache") {
         return {
             nodes: new Set(pathRangeCache.nodes[pathIndex]),
             edges: new Set(pathRangeCache.edges[pathIndex]),
@@ -208,77 +204,72 @@ export function getPaths(pathIndex, cache) {
     }
 }
 
-    function dfsSetDistance(
-        target,
-        current,
-        path,
-        visited,
-        allPaths,
-        minLength,
-        maxLength,
+function dfsSetDistance(
+    target,
+    current,
+    path,
+    visited,
+    allPaths,
+    minLength,
+    maxLength,
+) {
+    if (
+        current === target &&
+        path.length >= minLength &&
+        path.length <= maxLength
     ) {
-        if (current === target && path.length >= minLength && path.length <= maxLength) {
-            allPaths.push([...path]);
-            return allPaths;
-        }
-        if (path.length >= maxLength || current === target) {
-            return allPaths;
-        }
-        let nb = graph.neighbors(current);
-        for (const n of nb) {
-            if (visited.has(n)) continue;
-            visited.add(n);
-            path.push(n);
-            dfsSetDistance(
-                target,
-                n,
-                path,
-                visited,
-                allPaths,
-                minLength,
-                maxLength,
-            );
-            path.pop();
-            visited.delete(n);
-        }
+        allPaths.push([...path]);
         return allPaths;
     }
+    if (path.length >= maxLength || current === target) {
+        return allPaths;
+    }
+    let nb = graph.neighbors(current);
+    for (const n of nb) {
+        if (visited.has(n)) continue;
+        visited.add(n);
+        path.push(n);
+        dfsSetDistance(target, n, path, visited, allPaths, minLength, maxLength);
+        path.pop();
+        visited.delete(n);
+    }
+    return allPaths;
+}
 
-    export function pathFinderSetDistance(
-        player1,
-        player2,
-        minLength,
-        maxLength = 15,
-        cache
-    ) {
-        if (player1 === null || player2 === null) {
-            pathCache = { nodes: [], edges: [] };
-            return;
-        }
-
-        let path = dfsSetDistance(
-            player1,
-            player2,
-            [player2],
-            new Set([player2]),
-            [],
-            minLength,
-            maxLength,
-        );
-
-        let edges = pathFinderEdges(path);
-        if (cache === "pathSetCache") {
-            pathSetCache = { nodes: path, edges: edges };
-            useStore.getState().setNumPaths(path.length);
-            useStore.getState().setPathIndex(0);
-        }
-        else if (cache === "pathRangeCache") {
-            pathRangeCache = { nodes: path, edges: edges };
-            useStore.getState().setNumPaths(path.length);
-            useStore.getState().setPathIndex(0);
-        }
-
+export function pathFinderSetDistance(
+    player1,
+    player2,
+    minLength,
+    maxLength = 15,
+    cache,
+) {
+    if (player1 === null || player2 === null) {
+        pathCache = { nodes: [], edges: [] };
         return;
     }
 
-    export { graph };
+    let path = dfsSetDistance(
+        player1,
+        player2,
+        [player2],
+        new Set([player2]),
+        [],
+        minLength,
+        maxLength,
+    );
+
+    let edges = pathFinderEdges(path);
+    if (cache === "pathSetCache") {
+        pathSetCache = { nodes: path, edges: edges };
+        useStore.getState().setNumPaths(path.length);
+        useStore.getState().setPathIndex(0);
+    } else if (cache === "pathRangeCache") {
+        pathRangeCache = { nodes: path, edges: edges };
+        useStore.getState().setNumPaths(path.length);
+        useStore.getState().setPathIndex(0);
+    }
+
+    return;
+}
+
+export { graph };

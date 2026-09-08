@@ -39,5 +39,5 @@ export const useStore = create((set) => ({
     setPathNodes: (n) => set({ pathNodes: n }),
     setMinPathDistance: (d) => set({ minPathDistance: d }),
     setPathRangeLow: (d) => set({ pathRangeLow: d }),
-    setPathRangeHigh: (d) => set({ minPathDistance: d }),
+    setPathRangeHigh: (d) => set({ pathRangeHigh: d }),
 }));
