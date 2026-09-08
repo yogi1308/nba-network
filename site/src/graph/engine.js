@@ -11,6 +11,7 @@ let layers = {};
 let pathCache = {};
 let pathSetCache = {};
 let pathRangeCache = {};
+const MAX_PATHS = 100;
 
 const maxDepthMap = new Map(
     data.nodes.map((n) => [n.key, n.attributes.maxDepth]),
@@ -83,6 +84,7 @@ function dfs(
     visited,
     allPaths,
 ) {
+    if (allPaths.length > 100) {return}
     if (current === target) {
         allPaths.push([...path]);
         return;
@@ -164,7 +166,7 @@ export function pathFinder(player1, player2) {
     pathCache = { nodes: path, edges: edges };
     useStore.getState().setNumPaths(path.length);
     useStore.getState().setPathIndex(0);
-    useStore.getState().setMinDistance(path[0].length);
+    useStore.getState().setMinDistance(path[0].length - 1);
     return;
 }
 
@@ -204,32 +206,61 @@ export function getPaths(pathIndex, cache) {
     }
 }
 
+function bfsDistancesFrom(target) {
+    const dist = new Map([[target, 0]]);
+    const q = [target];
+    while (q.length) {
+        const node = q.shift();
+        const d = dist.get(node);
+        for (const nb of graph.neighbors(node)) {
+            if (dist.has(nb)) continue;
+            dist.set(nb, d + 1);
+            q.push(nb);
+        }
+    }
+    return dist;
+}
+
 function dfsSetDistance(
     target,
     current,
     path,
+    distFromTarget,
     visited,
     allPaths,
     minLength,
     maxLength,
 ) {
+    if (allPaths.length >= MAX_PATHS) {return allPaths}
     if (
         current === target &&
-        path.length >= minLength &&
-        path.length <= maxLength
+        path.length - 1 >= minLength &&
+        path.length - 1 <= maxLength
     ) {
         allPaths.push([...path]);
         return allPaths;
     }
-    if (path.length >= maxLength || current === target) {
+    if (path.length - 1 >= maxLength || current === target) {
         return allPaths;
     }
     let nb = graph.neighbors(current);
     for (const n of nb) {
         if (visited.has(n)) continue;
+        const d = distFromTarget.get(n);
+        if (d === undefined) continue;
+        if (path.length + d > Number(maxLength)) continue;
         visited.add(n);
         path.push(n);
-        dfsSetDistance(target, n, path, visited, allPaths, minLength, maxLength);
+        dfsSetDistance(
+            target,
+            n,
+            path,
+            distFromTarget,
+            visited,
+            allPaths,
+            minLength,
+            maxLength,
+        );
         path.pop();
         visited.delete(n);
     }
@@ -248,10 +279,13 @@ export function pathFinderSetDistance(
         return;
     }
 
+    let distFromTarget = bfsDistancesFrom(player1);
+
     let path = dfsSetDistance(
         player1,
         player2,
         [player2],
+        distFromTarget,
         new Set([player2]),
         [],
         minLength,
