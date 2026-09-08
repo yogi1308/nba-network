@@ -9,6 +9,7 @@ export default function LeftPanel({ open }) {
     const selectedPlayer = useStore((s) => s.selectedPlayer);
     const player1 = useStore((s) => s.player1);
     const player2 = useStore((s) => s.player2);
+    const cumulativeNodes = useStore((s) => s.cumulativeNodes);
     const [maxDepth, setMaxDepth] = useState(9);
     const view = useStore((s) => s.view);
     const numPaths = useStore((s) => s.numPaths);
@@ -26,16 +27,35 @@ export default function LeftPanel({ open }) {
                     <p className="text-xl font-bold">Search Player</p>
                     <PlayerDropdown dataFor={"selectedPlayer"} />
                     <div>
-                        <p>Depth</p>
+                        <p
+                            className={
+                                view === "path" ||
+                                    (view === "normal" && selectedPlayer === null)
+                                    ? "opacity-40"
+                                    : ""
+                            }
+                        >
+                            Depth
+                        </p>
                         <fieldset
-                            disabled={view === "path"}
-                            className={view === "path" ? "opacity-40" : ""}
+                            disabled={
+                                view === "path" ||
+                                (view === "normal" && selectedPlayer === null)
+                            }
+                            className={
+                                view === "path" ||
+                                    (view === "normal" && selectedPlayer === null)
+                                    ? "opacity-40"
+                                    : ""
+                            }
                         >
                             <Slider max={maxDepth} defaultLabel={"All Players"} />
                         </fieldset>
                     </div>
-                    {view === "normal" ? (
-                        <ShowConnectionsButton />
+                    {view === "normal" && selectedPlayer !== null ? (
+                        <p>Players Discovered: {cumulativeNodes}/5122</p>
+                    ) : view === "normal" && selectedPlayer === null ? (
+                        <p>Total Players: 5122</p>
                     ) : (
                         <button
                             className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 `}

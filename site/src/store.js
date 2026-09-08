@@ -3,7 +3,6 @@ import { create } from "zustand";
 export const useStore = create((set) => ({
     selectedPlayer: null,
     depth: 1,
-    showEdges: false,
     sigma: null,
     player1: null,
     player2: null,
@@ -12,10 +11,10 @@ export const useStore = create((set) => ({
     path: "alt",
     pathIndex: 0,
     numPaths: 0,
+    cumulativeNodes: 5122,
 
     setSelectedPlayer: (id) => set({ selectedPlayer: id, view: "normal" }),
     setDepth: (d) => set({ depth: d }),
-    setShowEdges: (v) => set({ showEdges: v }),
     setSigma: (s) => set({ sigma: s }),
     setPlayer1: (id) =>
         set((s) => ({
@@ -32,4 +31,5 @@ export const useStore = create((set) => ({
     setPath: (s) => set({ path: s }),
     setPathIndex: (s) => set({ pathIndex: s }),
     setNumPaths: (s) => set({ numPaths: s }),
+    setCumulativeNodes: (d) => set({ cumulativeNodes: d }),
 }));

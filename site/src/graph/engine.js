@@ -1,10 +1,13 @@
 import Graph from "graphology";
+import { useStore } from "../store.js";
 
 const graph = new Graph();
 
 const res = await fetch("/data/network.json");
 const data = await res.json();
 graph.import(data);
+
+export let layers = {};
 
 const maxDepthMap = new Map(
     data.nodes.map((n) => [n.key, n.attributes.maxDepth]),
@@ -23,54 +26,48 @@ export function scaleSize(deg, minOut = 3, maxOut = 25) {
     return minOut + t * (maxOut - minOut);
 }
 
-export function visibleNodesAndEdges(selected, showEdges, depth) {
+export function visibleNodesAndEdges(selected) {
     if (selected === null) {
-        return showEdges
-            ? { nodes: new Set(graph.nodes()), edges: new Set(graph.edges()) }
-            : { nodes: new Set(graph.nodes()), edges: new Set() };
+        layers = { nodes: new Set(graph.nodes()), edges: new Set(graph.edges()) };
+        return;
     }
 
-    let nodes = new Set([selected]);
-    let edges = new Set([]);
-    let connected = new Set([selected]);
-    if (showEdges && depth !== 0) {
-        for (const e of graph.edges(selected)) {
-            edges.add(e);
-            const [s, t] = graph.extremities(e);
-            connected.add(s);
-            connected.add(t);
-        }
-    }
-
-    let prevNodes = new Set([selected]);
-    for (let currDepth = 0; currDepth < depth; currDepth++) {
-        let curr = new Set();
-        for (const n of prevNodes) {
-            for (const nb of graph.neighbors(n)) {
-                if (nodes.has(nb)) continue;
-                curr.add(nb);
-                nodes.add(nb);
-                if (currDepth < depth - 1 && showEdges) {
-                    let eds = graph.edges(nb);
-                    for (const e of eds) {
-                        const [s, t] = graph.extremities(e);
-                        if (
-                            (s === nb && !connected.has(t)) ||
-                            (!connected.has(s) && t === nb)
-                        ) {
-                            edges.add(e);
-                            connected.add(s);
-                            connected.add(t);
-                        }
-                    }
+    layers = { 0: { nodes: [selected], edges: [], cumulativeNodes: 1 } };
+    let q = [[selected, 0]];
+    let visited = new Set([selected]);
+    let total = 1;
+    while (q.length) {
+        let [player, depth] = q.shift();
+        for (const nb of graph.neighbors(player)) {
+            if (visited.has(nb)) continue;
+            q.push([nb, depth + 1]);
+            visited.add(nb);
+            if (depth + 1 in layers) {
+                layers[depth + 1].nodes.push(nb);
+            } else {
+                layers[depth + 1] = { nodes: [nb], edges: [] };
+            }
+            layers[depth + 1].cumulativeNodes = ++total;
+            for (const e of graph.edges(nb)) {
+                const [s, t] = graph.extremities(e);
+                if ((s === nb && t === player) || (s === player && t === nb)) {
+                    layers[depth + 1].edges.push(e);
                 }
             }
         }
-        prevNodes = curr;
     }
-    if (!showEdges || depth === 0) return { nodes: nodes, edges: new Set() };
+}
 
-    return { nodes: nodes, edges: edges };
+export function sliceLayers(depth) {
+    if (!(0 in layers)) return layers;
+    const nodes = new Set();
+    const edges = new Set();
+    for (let d = 0; d <= depth; d++) {
+        for (const n of layers[d].nodes) nodes.add(n);
+        for (const e of layers[d].edges) edges.add(e);
+    }
+    useStore.getState().setCumulativeNodes(layers[depth]?.cumulativeNodes);
+    return { nodes, edges };
 }
 
 function dfs(
@@ -93,8 +90,9 @@ function dfs(
     let nb = graph.neighbors(current);
     for (const n of nb) {
         if (visited.has(n)) continue;
-        if (distMap[n] === undefined || distMap[n] !== distMap[current] - 1) continue;;
-        visited.add(n)
+        if (distMap[n] === undefined || distMap[n] !== distMap[current] - 1)
+            continue;
+        visited.add(n);
         path.push(n);
         dfs(distMap, target, n, path, maxDepth, currDepth + 1, visited, allPaths);
         path.pop();
@@ -104,7 +102,7 @@ function dfs(
 }
 
 function pathFinderEdges(path) {
-    let edges = []
+    let edges = [];
     for (const p of path) {
         let e = [];
         for (let index = 1; index < p.length; index++) {
@@ -123,13 +121,12 @@ function pathFinderEdges(path) {
     return edges;
 }
 export function pathFinder(player1, player2) {
-    if (player1 === null || player2 === null)
-        return { nodes: [], edges: [] };
+    if (player1 === null || player2 === null) return { nodes: [], edges: [] };
 
     let q = [[player1, 0]];
     let found = false;
     let foundDepth = 0;
-    let dist = { [ player1 ]: 0 };
+    let dist = { [player1]: 0 };
     while (q) {
         let player = q.shift();
         if (found && player[1] + 1 > foundDepth) break;
@@ -153,7 +150,7 @@ export function pathFinder(player1, player2) {
         [player2],
         foundDepth,
         0,
-        new Set([ player2 ]),
+        new Set([player2]),
         [],
     );
 
