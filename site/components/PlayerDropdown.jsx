@@ -96,9 +96,6 @@ export default function PlayerDropdown({ dataFor }) {
         setQuery("");
         setIsOpen(false);
         inputRef.current?.blur();
-        if (player1 !== null && player2 !== null) {
-            useStore.getState().setView("path");
-        }
     }
 
     // Full keyboard navigation for the combobox.
