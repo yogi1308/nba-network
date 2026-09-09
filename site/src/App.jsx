@@ -25,7 +25,7 @@ export default function App() {
             <div className="relative">
                 <button
                     title={lPanelState === "open" ? "Close Sidebar" : "Open Sidebar"}
-                    className={` absolute cursor-pointer z-1 ${lPanelState === "open" ? "right-1.5" : "-right-6.5"} scale-80 top-0.5 bg-black hover:scale-110 transition-all ease-in active:scale-95`}
+                    className={` absolute cursor-pointer z-1 ${lPanelState === "open" ? "right-1.5 top-1" : "-right-6.5 top-0.5"} scale-80  bg-black hover:scale-110 transition-all ease-in active:scale-95`}
                     onClick={() => {
                         lPanelState === "open"
                             ? setLPanelState("closed")
