@@ -160,6 +160,7 @@ export default function SigmaCanvas({ leftPanelOpen }) {
         setTimeout(() => {
             setRef.current = computeView();
             sigmaRef.current?.refresh();
+            useStore.getState().graphGotUpdated();
         }, 1);
     }, [
         sigma,

@@ -21,6 +21,7 @@ export const useStore = create((set) => ({
     numMinPaths: 0,
     numRangePaths: 0,
     selectedFilters: [],
+    graphUpdated: 0,
 
     setSelectedPlayer: (id) => set({ selectedPlayer: id, view: "normal" }),
     toggleFilter: (key) =>
@@ -75,4 +76,5 @@ export const useStore = create((set) => ({
     setPathRangeHigh: (d) => set({ pathRangeHigh: d }),
     setNumMinPaths: (d) => set({ numMinPaths: d }),
     setNumRangePaths: (d) => set({ numRangePaths: d }),
+    graphGotUpdated: () => set((s) => ({graphUpdated: s.graphUpdated + 1}))
 }));

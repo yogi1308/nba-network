@@ -21,7 +21,7 @@ export default function App() {
     }, [lPanelState]);
 
     return (
-        <div className="relative flex flex-row">
+        <div className="relative flex flex-row overflow-hidden">
             <div className="relative">
                 <button
                     title={lPanelState === "open" ? "Close Sidebar" : "Open Sidebar"}

@@ -34,9 +34,9 @@ export default function PathRes({ lPanelState }) {
             className={` absolute z-1 top-1 ${lPanelState === "open" ? "left-84" : "left-8"} transition-all duration-300 ease-in`}
         >
             <p className="text-xl font-bold">
-                Found {displayedCount} {kind}
-                {plural} of length {length} between {nameOf(player1)} and{" "}
-                {nameOf(player2)}
+                {count === 0
+                    ? `No paths found between ${nameOf(player1)} and ${nameOf(player2)}`
+                    : `Found ${displayedCount} ${kind}${plural} of length ${length} between ${nameOf(player1)} and ${nameOf(player2)}`}
             </p>
             {!isAll && (
                 <p className="text-xl font-bold">

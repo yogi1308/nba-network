@@ -382,4 +382,17 @@ export function pathFinderSetDistance(
     return;
 }
 
+export function maxDegreePlayer(params) {
+    let best = 0 
+    let bestNode = null
+    graph.forEachNode((node) => {
+        const d = graph.degree(node)
+        if (d > best) {
+            best = d
+            bestNode = node
+        }
+    })
+    return {name: graph.getNodeAttribute(bestNode, "label"), degree: best}
+}
+
 export { graph };

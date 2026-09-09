@@ -7,8 +7,10 @@ import { maxDepthOf, graph } from "../src/graph/engine.js";
 export default function SearchPlayer() {
     const selectedPlayer = useStore((s) => s.selectedPlayer);
     const cumulativeNodes = useStore((s) => s.cumulativeNodes);
+    useStore((s) => s.graphUpdated);
     const view = useStore((s) => s.view);
     const [maxDepth, setMaxDepth] = useState(9);
+
     useEffect(() => {
         setMaxDepth(selectedPlayer ? maxDepthOf(selectedPlayer) : 9);
     }, [selectedPlayer]);
