@@ -20,8 +20,35 @@ export const useStore = create((set) => ({
     pathRangeHigh: "",
     numMinPaths: 0,
     numRangePaths: 0,
+    selectedFilters: [],
 
     setSelectedPlayer: (id) => set({ selectedPlayer: id, view: "normal" }),
+    toggleFilter: (key) =>
+        set((s) => ({
+            selectedFilters: s.selectedFilters.includes(key)
+                ? s.selectedFilters.filter((k) => k !== key)
+                : [...s.selectedFilters, key],
+        })),
+    resetOnFilterChange: () =>
+        set({
+            selectedPlayer: null,
+            depth: 1,
+            player1: null,
+            player2: null,
+            minDistance: null,
+            view: "normal",
+            path: "alt",
+            pathIndex: 0,
+            minPathIndex: 0,
+            rangePathIndex: 0,
+            numPaths: 0,
+            pathNodes: [],
+            minPathDistance: "",
+            pathRangeLow: "",
+            pathRangeHigh: "",
+            numMinPaths: 0,
+            numRangePaths: 0,
+        }),
     setDepth: (d) => set({ depth: d }),
     setSigma: (s) => set({ sigma: s }),
     setPlayer1: (id) =>

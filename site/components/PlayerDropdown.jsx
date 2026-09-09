@@ -2,14 +2,6 @@ import { useMemo, useState, useRef, useEffect } from "react";
 import { graph } from "../src/graph/engine.js";
 import { useStore } from "../src/store.js";
 
-// Flatten the graph into a searchable list of players: every node becomes
-// { key } (the node id, e.g. "76001") plus { label } (the display name),
-// sorted alphabetically for the dropdown list.
-const ALL_PLAYERS = graph
-    .nodes()
-    .map((key) => ({ key, label: graph.getNodeAttributes(key).label }))
-    .sort((a, b) => a.label.localeCompare(b.label));
-
 // The "clear selection" option. key: null maps to the store's default
 // "no player selected" state, so the whole graph is shown.
 const ALL_OPTION = { key: null, label: "All Players" };
@@ -23,6 +15,15 @@ export default function PlayerDropdown({ dataFor }) {
     const player2 = useStore((s) => s.player2);
     // query: whatever the user is currently typing into the search box.
     const [query, setQuery] = useState("");
+    // players: the flat, searchable list derived from the graph, stored in
+    // state and refreshed on open (see effect below) whenever the graph set
+    // has changed. Initialized from the graph once so the first open is full.
+    const [players, setPlayers] = useState(() =>
+        graph
+            .nodes()
+            .map((key) => ({ key, label: graph.getNodeAttributes(key).label }))
+            .sort((a, b) => a.label.localeCompare(b.label)),
+    );
     // isOpen: whether the options list is shown.
     const [isOpen, setIsOpen] = useState(false);
     // activeIndex: row currently highlighted (hover / arrow keys).
@@ -43,27 +44,44 @@ export default function PlayerDropdown({ dataFor }) {
                 ? PLAYER2
                 : ALL_OPTION;
 
+    // Flatten the current graph into a searchable list of players: every
+    // node becomes { key } (node id) plus { label } (display name), sorted by
+    // name. Snapshot it whenever the dropdown opens: filter changes re-set
+    // the graph inside SigmaCanvas's effect, which runs after this component's
+    // effects, so reading here on open guarantees the current graph.
+    useEffect(() => {
+        if (!isOpen) return;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setPlayers(
+            graph
+                .nodes()
+                .map((key) => ({ key, label: graph.getNodeAttributes(key).label }))
+                .sort((a, b) => a.label.localeCompare(b.label)),
+        );
+    }, [isOpen]);
+
     // What to show in the input when the user is not typing: the selected
     // player's name, or the default option label if nothing is chosen.
     const displayText =
         (dataFor === "player1"
-            ? ALL_PLAYERS.find((p) => p.key === player1)?.label
+            ? players.find((p) => p.key === player1)?.label
             : dataFor === "player2"
-                ? ALL_PLAYERS.find((p) => p.key === player2)?.label
-                : ALL_PLAYERS.find((p) => p.key === selectedKey)?.label) ??
+                ? players.find((p) => p.key === player2)?.label
+                : players.find((p) => p.key === selectedKey)?.label) ??
         defaultOption.label;
 
-    // The rows to render in the dropdown, recomputed only when the query changes.
+    // The rows to render in the dropdown, recomputed only when the query
+    // changes or the graph set changes.
     const options = useMemo(() => {
         const q = query.trim().toLowerCase();
         // Filter players by substring match; empty query shows everyone.
         const matches = q
-            ? ALL_PLAYERS.filter((p) => p.label.toLowerCase().includes(q))
-            : ALL_PLAYERS;
+            ? players.filter((p) => p.label.toLowerCase().includes(q))
+            : players;
         // Only offer the default option when the query can't rule it out.
         const allMatches = !q || defaultOption.label.toLowerCase().includes(q);
         return [...(allMatches ? [defaultOption] : []), ...matches];
-    }, [query]);
+    }, [query, players, defaultOption]);
 
     // Close the dropdown when the user clicks anywhere outside it.
     useEffect(() => {

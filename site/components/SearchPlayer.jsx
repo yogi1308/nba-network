@@ -2,7 +2,7 @@ import PlayerDropdown from "./PlayerDropdown";
 import { useStore } from "../src/store.js";
 import { useEffect, useState } from "react";
 import Slider from "./Slider.jsx";
-import { maxDepthOf } from "../src/graph/engine.js";
+import { maxDepthOf, graph } from "../src/graph/engine.js";
 
 export default function SearchPlayer() {
     const selectedPlayer = useStore((s) => s.selectedPlayer);
@@ -44,9 +44,9 @@ export default function SearchPlayer() {
                 </fieldset>
             </div>
             {view === "normal" && selectedPlayer !== null ? (
-                <p>Players Discovered: {cumulativeNodes}/5122</p>
+                <p>Players Discovered: {cumulativeNodes}/{graph.nodes().length}</p>
             ) : view === "normal" && selectedPlayer === null ? (
-                <p>Total Players: 5122</p>
+                <p>Total Players: {graph.nodes().length}</p>
             ) : (
                 <button
                     className={`border w-full border-white rounded-[5px] py-0.2 cursor-pointer transition-all duration-150 ease-in hover:bg-white hover:text-black active:scale-95 `}

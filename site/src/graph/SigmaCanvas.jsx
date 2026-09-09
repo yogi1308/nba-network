@@ -8,6 +8,7 @@ import {
     sliceLayers,
     getPaths,
     pathFinderSetDistance,
+    setGraph,
 } from "./engine.js";
 import { drawDiscNodeHover } from "sigma/rendering";
 import { useStore } from "../store.js";
@@ -17,9 +18,10 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     const [p1, setP1] = useState(null);
     const [p2, setP2] = useState(null);
     const [pType, setPType] = useState(null);
-    const [minD, setMinD] = useState(0)
-    const [low, setlow] = useState(0)
-    const [high, sethigh] = useState(0)
+    const [minD, setMinD] = useState(0);
+    const [low, setlow] = useState(0);
+    const [high, sethigh] = useState(0);
+    const [filters, setFilter] = useState(null);
     const selectedPlayer = useStore((s) => s.selectedPlayer);
     const player1 = useStore((s) => s.player1);
     const player2 = useStore((s) => s.player2);
@@ -35,6 +37,7 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     const minPathDistance = useStore((s) => s.minPathDistance);
     const numMinPaths = useStore((s) => s.numMinPaths);
     const numRangePaths = useStore((s) => s.numRangePaths);
+    const selectedFilters = useStore((s) => s.selectedFilters);
     const containerRef = useRef(null);
     const sigmaRef = useRef(null);
     const setRef = useRef(null);
@@ -76,9 +79,20 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     }, []);
 
     function computeView() {
+        if (selectedFilters !== filters) {
+            setGraph(selectedFilters);
+            useStore.getState().resetOnFilterChange();
+            setFilter(selectedFilters);
+        }
         if (view === "path" && player1 !== null && player2 !== null) {
             // this runs even when switched from alt to all
-            if (p1 !== player1 || p2 !== player2 || low !== pathRangeLow || high !== pathRangeHigh || minD !== minPathDistance) {
+            if (
+                p1 !== player1 ||
+                p2 !== player2 ||
+                low !== pathRangeLow ||
+                high !== pathRangeHigh ||
+                minD !== minPathDistance
+            ) {
                 if (path === "alt" || path === "all") {
                     pathFinder(player1, player2);
                 } else if (path === "minLengthPathAlt" || path === "minLengthPathAll") {
@@ -101,9 +115,9 @@ export default function SigmaCanvas({ leftPanelOpen }) {
                 setPType(path);
                 setP1(player1);
                 setP2(player2);
-                setlow(pathRangeLow)
-                sethigh(pathRangeHigh)
-                setMinD(minPathDistance)
+                setlow(pathRangeLow);
+                sethigh(pathRangeHigh);
+                setMinD(minPathDistance);
             }
             if (path === "all") {
                 return getPaths("all", "pathCache");
@@ -145,7 +159,22 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     useEffect(() => {
         setRef.current = computeView();
         sigmaRef.current?.refresh();
-    }, [sigma, selectedPlayer, depth, path, player1, player2, view, pathIndex, minPathIndex, rangePathIndex, minPathDistance, pathRangeLow, pathRangeHigh]);
+    }, [
+        sigma,
+        selectedPlayer,
+        depth,
+        path,
+        player1,
+        player2,
+        view,
+        pathIndex,
+        minPathIndex,
+        rangePathIndex,
+        minPathDistance,
+        pathRangeLow,
+        pathRangeHigh,
+        selectedFilters,
+    ]);
 
     return (
         <div

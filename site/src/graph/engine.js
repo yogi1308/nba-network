@@ -1,34 +1,88 @@
 import Graph from "graphology";
 import { useStore } from "../store.js";
 
-const graph = new Graph();
-
-const res = await fetch("/data/network.json");
-const data = await res.json();
-graph.import(data);
-
 let layers = {};
 let pathCache = {};
 let pathSetCache = {};
 let pathRangeCache = {};
 const MAX_PATHS = 100;
 
+let graph = new Graph();
+const res = await fetch("/data/network.json");
+const data = await res.json();
+graph.import(data);
+
+function seasonDecade(season) {
+    return `${Math.floor(parseInt(season.split("-")[0], 10) / 10) * 10}s`;
+}
+
+export function setGraph(filters) {
+    const selected = new Set(filters);
+    if (selected.size === 0) {
+        graph.clear();
+        graph.import(data);
+        return;
+    }
+    const nodesIndex = new Map(data.nodes.map((n) => [n.key, n]));
+    const matchedNodes = new Set();
+    const matchedEdges = [];
+    for (const e of data.edges) {
+        if (
+            !(e.attributes.seasons ?? []).some(
+                (s) => selected.has(seasonDecade(s.season)) || selected.has(s.team),
+            )
+        ) {
+            continue;
+        }
+        matchedEdges.push(e);
+        matchedNodes.add(e.source);
+        matchedNodes.add(e.target);
+    }
+    graph.clear();
+    graph.import({
+        nodes: [...matchedNodes].map((k) => nodesIndex.get(k)),
+        edges: matchedEdges,
+    });
+}
+
 export function maxDepthOf(key) {
-    let depth = 0
-    let q = [[key, 0]]
-    let visited = new Set([key])
+    let depth = 0;
+    let q = [[key, 0]];
+    let visited = new Set([key]);
     while (q.length) {
-        const [player, d] = q.shift()
-        depth = Math.max(depth, d)
+        const [player, d] = q.shift();
+        depth = Math.max(depth, d);
         for (const nb of graph.neighbors(player)) {
             if (visited.has(nb)) {
-                continue    
+                continue;
             }
-            visited.add(nb)
-            q.push([nb, d + 1])
+            visited.add(nb);
+            q.push([nb, d + 1]);
         }
     }
-    return depth
+    return depth;
+}
+
+export function getFilterOptions() {
+    const decades = new Set();
+    const teams = new Map();
+    graph.forEachEdge((edge, attrs) => {
+        for (const s of attrs.seasons ?? []) {
+            const year = parseInt(s.season.split("-")[0], 10);
+            decades.add(`${Math.floor(year / 10) * 10}s`);
+            if (s.teamName && s.teamName !== s.team && !teams.has(s.team)) {
+                teams.set(s.team, s.teamName);
+            }
+        }
+    });
+    return {
+        decades: [...decades]
+            .sort((a, b) => parseInt(a) - parseInt(b))
+            .map((d) => ({ key: d, label: d })),
+        teams: [...teams.entries()]
+            .sort((a, b) => a[1].localeCompare(b[1]))
+            .map(([key, label]) => ({ key, label })),
+    };
 }
 
 const degrees = graph.nodes().map((n) => graph.degree(n));
@@ -94,7 +148,9 @@ function dfs(
     visited,
     allPaths,
 ) {
-    if (allPaths.length > 100) {return}
+    if (allPaths.length > 100) {
+        return;
+    }
     if (current === target) {
         allPaths.push([...path]);
         return;
@@ -249,7 +305,9 @@ function dfsSetDistance(
     minLength,
     maxLength,
 ) {
-    if (allPaths.length >= MAX_PATHS) {return allPaths}
+    if (allPaths.length >= MAX_PATHS) {
+        return allPaths;
+    }
     if (
         current === target &&
         path.length - 1 >= minLength &&
