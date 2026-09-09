@@ -25,7 +25,7 @@ export default function App() {
             <div className="relative">
                 <button
                     title={lPanelState === "open" ? "Close Sidebar" : "Open Sidebar"}
-                    className={` absolute cursor-pointer z-1 ${lPanelState === "open" ? "right-1.5" : "-right-3"} scale-80 top-1 bg-black hover:scale-110 transition-all ease-in active:scale-95`}
+                    className={` absolute cursor-pointer z-1 ${lPanelState === "open" ? "right-1.5" : "-right-7"} scale-80 top-1 bg-black hover:scale-110 transition-all ease-in active:scale-95`}
                     onClick={() => {
                         lPanelState === "open"
                             ? setLPanelState("closed")
@@ -38,7 +38,7 @@ export default function App() {
                 </button>
                 <LeftPanel open={lPanelState} />
                 <div
-                    className={`backdrop-blur-xl absolute z-1 bottom-1.5 p-1 py-1.5 ${lPanelState === "open" ? "-right-12" : "-right-6"}  border border-[#262a30] rounded-[5px] `}
+                    className={`backdrop-blur-xl absolute z-1 bottom-1.5 p-1 py-1.5 ${lPanelState === "open" ? "-right-12" : "-right-10"}  border border-[#262a30] rounded-[5px] `}
                 >
                     <CanvasControls />
                 </div>
