@@ -9,9 +9,10 @@ export default function Filter() {
     const toggleFilter = useStore((s) => s.toggleFilter);
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
             <p className="text-xl font-bold">Filter</p>
             <FilterDropdown
+        filterby={"Decades"}
                 options={decades}
                 selected={selectedFilters}
                 onToggle={toggleFilter}
@@ -19,6 +20,7 @@ export default function Filter() {
                 ariaLabel="Decade filter"
             />
             <FilterDropdown
+        filterby={"Teams"}
                 options={teams}
                 selected={selectedFilters}
                 onToggle={toggleFilter}

@@ -157,8 +157,10 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     }
 
     useEffect(() => {
-        setRef.current = computeView();
-        sigmaRef.current?.refresh();
+        setTimeout(() => {
+            setRef.current = computeView();
+            sigmaRef.current?.refresh();
+        }, 1);
     }, [
         sigma,
         selectedPlayer,

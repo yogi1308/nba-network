@@ -8,6 +8,7 @@ export default function FilterDropdown({
     onToggle,
     placeholder,
     ariaLabel,
+    filterby
 }) {
     const [query, setQuery] = useState("");
     const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +52,12 @@ export default function FilterDropdown({
 
     function toggle(option) {
         if (option.key === CLEAR_OPTION.key) {
-            for (const key of selected) onToggle(key);
+            // Clear only this dropdown's own selections: `selected` is the
+            // shared filter array spanning both decade and team dropdowns, so
+            // restrict the toggle loop to keys that belong to this dropdown.
+            for (const key of selected) {
+                if (options.some((o) => o.key === key)) onToggle(key);
+            }
         } else {
             onToggle(option.key);
         }
@@ -80,7 +86,8 @@ export default function FilterDropdown({
     }
 
     return (
-        <div ref={rootRef} className="relative">
+        <div ref={rootRef} className="relative flex flex-col gap-1 ">
+        <p>By {filterby}</p>
             <div
                 onClick={() => {
                     setIsOpen(true);
@@ -119,7 +126,7 @@ export default function FilterDropdown({
                         setIsOpen(false);
                     }
                 }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-[#5a5f66] hover:text-white"
+                className="absolute right-2 top-1/2 translate-y-1/2 cursor-pointer text-[#5a5f66] hover:text-white"
             >
                 <svg
                     className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
