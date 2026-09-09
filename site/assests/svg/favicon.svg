@@ -1,0 +1,23 @@
+<svg width="100%" viewBox="0 0 680 630" role="img" xmlns="http://www.w3.org/2000/svg" style="">
+<title style="fill:rgb(0, 0, 0);stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;anthropic-sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">Asymmetric spoke icon preview</title>
+<desc style="fill:rgb(0, 0, 0);stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;anthropic-sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">A central node connected by six edges of varying length and angle to six outer nodes, in an irregular starburst layout. Edges are dark blue, nodes are filled red with thin white outlines.</desc>
+
+<g stroke="#1c3f87" stroke-width="11" stroke-linecap="round" fill="none" style="fill:none;stroke:rgb(28, 63, 135);color:rgb(11, 11, 11);stroke-width:11px;stroke-linecap:round;stroke-linejoin:miter;opacity:1;font-family:&quot;anthropic-sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+<line x1="340" y1="340" x2="340" y2="110" />
+<line x1="340" y1="340" x2="520" y2="180" />
+<line x1="340" y1="340" x2="580" y2="380" />
+<line x1="340" y1="340" x2="460" y2="560" />
+<line x1="340" y1="340" x2="200" y2="520" />
+<line x1="340" y1="340" x2="140" y2="260" />
+</g>
+
+<g fill="#c20f2d">
+<circle cx="340" cy="110" r="26" stroke="#ffffff" stroke-width="3" stroke-opacity="0.95" />
+<circle cx="520" cy="180" r="24" stroke="#ffffff" stroke-width="3" stroke-opacity="0.95" />
+<circle cx="580" cy="380" r="22" stroke="#ffffff" stroke-width="3" stroke-opacity="0.95" />
+<circle cx="460" cy="560" r="25" stroke="#ffffff" stroke-width="3" stroke-opacity="0.95" />
+<circle cx="200" cy="520" r="23" stroke="#ffffff" stroke-width="3" stroke-opacity="0.95" />
+<circle cx="140" cy="260" r="27" stroke="#ffffff" stroke-width="3" stroke-opacity="0.95" />
+<circle cx="340" cy="340" r="30" stroke="#ffffff" stroke-width="3" stroke-opacity="0.95" />
+</g>
+</svg>
