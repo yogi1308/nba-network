@@ -16,7 +16,7 @@ export default function SearchPlayer() {
     }, [selectedPlayer]);
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
             <p className="text-xl font-bold">Search Player</p>
             <PlayerDropdown dataFor={"selectedPlayer"} />
             <div>
