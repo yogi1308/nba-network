@@ -25,7 +25,12 @@ export default function Analysis() {
                 {((graph.edges().length / 164567) * 100).toFixed(2)}% of all connections
             </p>
             <p>Number of Components: {nComponents}</p>
-            <p>More analysis and insights: Coming Soon...</p>
+            <a
+                href="/article/"
+                className="mt-1 inline-block cursor-pointer rounded border border-[#262a30] px-3 py-1.5 text-sm hover:border-gray-600"
+            >
+                Read the Article →
+            </a>
         </div>
     );
 }
