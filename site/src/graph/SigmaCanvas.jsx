@@ -157,11 +157,21 @@ export default function SigmaCanvas({ leftPanelOpen }) {
     }
 
     useEffect(() => {
-        setTimeout(() => {
+        const el = containerRef.current;
+        if (el) {
+            el.style.transition = "opacity 100ms ease-in";
+            el.style.opacity = "0";
+        }
+        const timer = setTimeout(() => {
             setRef.current = computeView();
             sigmaRef.current?.refresh();
             useStore.getState().graphGotUpdated();
-        }, 1);
+            if (el) {
+                el.style.transition = "opacity 200ms ease-out";
+                el.style.opacity = "1";
+            }
+        }, 150);
+        return () => clearTimeout(timer);
     }, [
         sigma,
         selectedPlayer,
